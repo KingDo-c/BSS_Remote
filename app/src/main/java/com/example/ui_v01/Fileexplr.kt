@@ -13,8 +13,12 @@ import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.ui_v01.databinding.ActivityMainBinding
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
 
 class Fileexplr : AppCompatActivity() {
     private var mCurrent: String? = null
@@ -81,8 +85,32 @@ class Fileexplr : AppCompatActivity() {
                 refreshFiles() //리프레쉬
             } else { //디렉토리가 아니면 토스트 메세지를 뿌림
                 //Toast.makeText(this@FileExplorer, arFiles!![position], 0).show()
+                var rFile = readFile("sample_pose.txt")
+
             }
         }
+
+    @Throws(IOException::class)
+    private fun readFile(fileName: String): String? {
+        var fileContents = ""
+        try {
+            val iStream: InputStream? = openFileInput(fileName)
+            if (iStream != null) {
+                val iStreamReader = InputStreamReader(iStream)
+                val bufferedReader = BufferedReader(iStreamReader)
+                var temp: String? = ""
+                val sBuffer = StringBuffer()
+                while (bufferedReader.readLine().also { temp = it } != null) {
+                    sBuffer.append(temp)
+                }
+                iStream.close()
+                fileContents = sBuffer.toString()
+            }
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
+        return fileContents
+    }
 
     //버튼 2개 클릭시
     fun mOnClick(v: View) {
