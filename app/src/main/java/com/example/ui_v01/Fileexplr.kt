@@ -1,6 +1,8 @@
 package com.example.ui_v01
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
@@ -17,6 +19,7 @@ import com.example.ui_v01.databinding.ActivityMainBinding
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -28,13 +31,14 @@ class Fileexplr : AppCompatActivity() {
     private var mFileList: ListView? = null
     private var mAdapter: ArrayAdapter<*>? = null
     private var arFiles: ArrayList<String> = ArrayList()
+    private val TAG = "fileexpr"
 
+    val readval = Intent()
     companion object {
         private const val MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1
         private val permission = arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
-        private val TAG = "FileExplorer"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +47,8 @@ class Fileexplr : AppCompatActivity() {
 
         mCurrentTxt = findViewById<TextView>(R.id.current)
         mFileList = findViewById<View>(R.id.filelist) as ListView
+
+
 
         //SD카드 루트 가져옴
         mRoot = Environment.getExternalStorageDirectory().absolutePath
@@ -85,9 +91,44 @@ class Fileexplr : AppCompatActivity() {
                 mCurrent = Path //현재를 Path로 바꿔줌
                 refreshFiles() //리프레쉬
             } else { //디렉토리가 아니면 토스트 메세지를 뿌림
-                //Toast.makeText(this@FileExplorer, arFiles!![position], 0).show()
+                //Toast.makeText(this@Fileexplr, arFiles!![position], Toast.LENGTH_LONG).show()
+                readtxt(mCurrent,arFiles!![position])
             }
         }
+
+    fun readtxt(curpath : String? , target : String){
+        Log.d(TAG, "readtxt func in")
+        Log.d(TAG, "curpath : $curpath / target $target")
+        val fullPath = "$curpath/$target"
+        Log.d(TAG, "fullpath : $fullPath")
+//        val file = File(fullPath)
+//
+////        if (!file.exists()){
+////            return ""
+////        }
+//
+//        val reader = FileReader(file)
+//        val buffer = BufferedReader(reader)
+//        var temp = ""
+//        val result = StringBuffer()
+//
+//        while(true){
+//            temp = buffer.readLine()
+//            if(temp == null) break
+//            else result.append(buffer)
+//        }
+//        buffer.close()
+//        //return result.toString()
+//        //showfilecnt.text = result.toString()
+        val read = FileReader(fullPath)
+        val res = read.readText()
+
+        readval.putExtra("samplepose",res)
+        setResult(Activity.RESULT_OK,readval)
+
+        Log.d(TAG, "sample pose : $res")
+        finish()
+    }
 
     //버튼 2개 클릭시
     fun mOnClick(v: View) {

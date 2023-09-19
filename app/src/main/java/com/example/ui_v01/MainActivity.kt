@@ -2,6 +2,7 @@ package com.example.ui_v01
 
 import android.R
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.DeadObjectException
@@ -12,6 +13,7 @@ import android.view.MotionEvent
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ui_v01.databinding.ActivityMainBinding
 import java.io.DataInputStream
@@ -98,6 +100,17 @@ class MainActivity : AppCompatActivity() {
 
     private var testflag = false
 
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1){
+            if (resultCode == Activity.RESULT_OK) {
+                val samplepose = data?.getStringExtra("samplepose")
+                Toast.makeText(applicationContext, "sample pose : $samplepose", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_item)
@@ -125,9 +138,11 @@ class MainActivity : AppCompatActivity() {
 //            binding.textstatus.text="recv...."
 //        }///////
         binding.file.setOnClickListener {
+            Toast.makeText(applicationContext, "file open", Toast.LENGTH_SHORT).show()
             val myIntent : Intent = Intent(this, Fileexplr :: class.java) //testact
-            startActivity(myIntent)
+            startActivityForResult(myIntent,1)
         }
+
 
         ///////////linear stage
         lsctrlbtn(binding.lsup, true) //true up
