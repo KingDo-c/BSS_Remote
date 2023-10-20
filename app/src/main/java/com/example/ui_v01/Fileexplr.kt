@@ -15,14 +15,10 @@ import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.ui_v01.databinding.ActivityMainBinding
-import java.io.BufferedReader
 import java.io.File
-import java.io.FileNotFoundException
+import java.io.FileFilter
 import java.io.FileReader
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
+
 
 class Fileexplr : AppCompatActivity() {
     private var mCurrent: String? = null
@@ -87,12 +83,17 @@ class Fileexplr : AppCompatActivity() {
             //들어가기 위해 /와 터치한 파일 명을 붙여줌
             val Path = "$mCurrent/$Name"
             val f = File(Path) //File 클래스 생성
+
             if (f.isDirectory) { //디렉토리면?
                 mCurrent = Path //현재를 Path로 바꿔줌
                 refreshFiles() //리프레쉬
-            } else { //디렉토리가 아니면 토스트 메세지를 뿌림
+            }
+            else if(f.name.endsWith(".txt")){ //txt 파일이면 처리
                 //Toast.makeText(this@Fileexplr, arFiles!![position], Toast.LENGTH_LONG).show()
                 readtxt(mCurrent,arFiles!![position])
+            }
+            else{ //txt 파일 아니면 알림
+                Toast.makeText(this@Fileexplr,"Not .txt file", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -101,25 +102,7 @@ class Fileexplr : AppCompatActivity() {
         Log.d(TAG, "curpath : $curpath / target $target")
         val fullPath = "$curpath/$target"
         Log.d(TAG, "fullpath : $fullPath")
-//        val file = File(fullPath)
-//
-////        if (!file.exists()){
-////            return ""
-////        }
-//
-//        val reader = FileReader(file)
-//        val buffer = BufferedReader(reader)
-//        var temp = ""
-//        val result = StringBuffer()
-//
-//        while(true){
-//            temp = buffer.readLine()
-//            if(temp == null) break
-//            else result.append(buffer)
-//        }
-//        buffer.close()
-//        //return result.toString()
-//        //showfilecnt.text = result.toString()
+
         val read = FileReader(fullPath)
         val res = read.readText()
 
@@ -128,6 +111,20 @@ class Fileexplr : AppCompatActivity() {
 
         Log.d(TAG, "sample pose : $res")
         finish()
+    }
+    fun listFilesInDirectory(pathString: String?) {
+        // A local class (a class defined inside a block, here a method).
+        class MyFilter : FileFilter {
+            override fun accept(file: File): Boolean {
+                return !file.isHidden && file.name.endsWith(".txt")
+            }
+        }
+
+        val directory = File(pathString)
+        val files = directory.listFiles(MyFilter())
+        for (fileLoop in files) {
+            println(fileLoop.name)
+        }
     }
 
     //버튼 2개 클릭시
@@ -209,10 +206,10 @@ class Fileexplr : AppCompatActivity() {
                 // 권한 허용
                 if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.i(TAG, "권한 허용")
-                    Toast.makeText(applicationContext, "허용되었습니다", Toast.LENGTH_LONG).show()
+                    //Toast.makeText(applicationContext, "허용되었습니다", Toast.LENGTH_LONG).show()
                 } else { //권한 허용 불가
                     Log.i(TAG, "권한 거절")
-                    Toast.makeText(applicationContext, "앱권한설정하세요", Toast.LENGTH_LONG).show()
+                    //Toast.makeText(applicationContext, "앱권한설정하세요", Toast.LENGTH_LONG).show()
                 }
                 return
             }

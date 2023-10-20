@@ -161,6 +161,7 @@ class MainActivity : AppCompatActivity() {
 
         ///////////coil posi
         binding.gobtn.setOnClickListener{
+            show_text.text = "$rawfiledata"
         }
         binding.stopbtn.setOnClickListener{
         }
