@@ -60,6 +60,10 @@ class MainActivity : AppCompatActivity() {
     private var lsdwnflag = false
     private var lsstpflag = false
     private var homeflag = false
+    private var packageflag = false
+    private var gosamplflag = false
+
+    private var demomode = false
 
     var recvdata = ByteArray(32)
 
@@ -70,8 +74,19 @@ class MainActivity : AppCompatActivity() {
     val idx_direction_stage = 97 //1일때 up , 0이면 down
     val idx_move_stage = 98 // 1일때 움직임.
     val idx_go_home = 16
+    val idx_rb_pose = 87
+    val idx_cartesian_control = 17
+    val idx_joint_status = 33
+    val idx_stop = 12
+
+    val interval_btw_poses : Long = 3  // seconds,  time delay during robot motion
+    val interval_go_signal : Long = 100  // milliseconds
+    val sampling_time : Long = 10 // milliseconds
+
     val unit_from_ui_to_zub = 1000.0
     val curq = DoubleArray(6)
+
+    var rawfiledata : String? = null
 
     val q_range = arrayOf(arrayOf(-1, 95),
         arrayOf(-1, 100),
@@ -97,7 +112,6 @@ class MainActivity : AppCompatActivity() {
     private var timestopflag = 0
     private var timecount = 0
     private var time2count = 0
-
     private var testflag = false
 
     @Deprecated("Deprecated in Java")
@@ -106,6 +120,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == 1){
             if (resultCode == Activity.RESULT_OK) {
                 val samplepose = data?.getStringExtra("samplepose")
+                rawfiledata = samplepose
                 Toast.makeText(applicationContext, "sample pose : $samplepose", Toast.LENGTH_LONG).show()
             }
         }
@@ -128,15 +143,8 @@ class MainActivity : AppCompatActivity() {
             binding.textstatus.text="connecting...."
         }
         binding.demo.setOnClickListener{
-            sendflag = true
-            //sended_num += 1
-            binding.textstatus.text="send...."
+            gosamplflag = true
         }
-//        binding.file.setOnClickListener{
-//            recvflag = true
-//            //sended_num -= 1
-//            binding.textstatus.text="recv...."
-//        }///////
         binding.file.setOnClickListener {
             Toast.makeText(applicationContext, "file open", Toast.LENGTH_SHORT).show()
             val myIntent : Intent = Intent(this, Fileexplr :: class.java) //testact
@@ -147,6 +155,9 @@ class MainActivity : AppCompatActivity() {
         ///////////linear stage
         lsctrlbtn(binding.lsup, true) //true up
         lsctrlbtn(binding.lsdown, false) // false down
+        binding.packagebt.setOnClickListener {
+            packageflag = true
+        }
 
         ///////////coil posi
         binding.gobtn.setOnClickListener{
@@ -422,9 +433,6 @@ class MainActivity : AppCompatActivity() {
 
             try {
                 while (true) {
-                    //val index = 0x2201
-//                    val subindex = 100
-//                    val value : Int = 0x02
 
                     get_joint_value() //add timer
 
@@ -456,10 +464,20 @@ class MainActivity : AppCompatActivity() {
                     if (lsstpflag == true){
                         stop_stage()
                     }
+                    if (gosamplflag == true){
+                        Log.d(TAG, "go samplflag / flag : $gosamplflag")
+                        load_file(rawfiledata)
+                        go_sample_pose()
+                    }
                     if (homeflag == true){
                         Log.d(TAG, "go home / flag : $homeflag")
                         go_home()
                         homeflag = false
+                    }
+                    if (packageflag == true){
+                        Log.d(TAG, "go package / flag : $packageflag")
+                        go_package()
+                        packageflag = false
                     }
                 }
             }
@@ -482,10 +500,10 @@ class MainActivity : AppCompatActivity() {
             val rcv11 = recvdata[11]
 
             val curqfromzub = (-1 * (byteToInt(rcv11) shr 0x07) shl 31) +
-                    (((byteToInt(rcv11) and 0x7F) shl 24) or
-                            (byteToInt(rcv10) shl 16) or
-                            (byteToInt(rcv9) shl 8) or
-                            byteToInt(rcv8))
+                                (((byteToInt(rcv11) and 0x7F) shl 24) or
+                                (byteToInt(rcv10) shl 16) or
+                                (byteToInt(rcv9) shl 8) or
+                                byteToInt(rcv8))
 
             curq[i] = (curqfromzub / unit_from_ui_to_zub)
 
@@ -701,6 +719,12 @@ class MainActivity : AppCompatActivity() {
         setvalue(idx_go_home, value)
         //'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
     }
+    private fun go_package(){
+        val value = 2
+        Log.d(TAG, "index : $idx_go_home / value : $value")
+        setvalue(idx_go_home, value)
+        //'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
+    }
 
     private fun up_stage() {
         val value = 1
@@ -725,6 +749,18 @@ class MainActivity : AppCompatActivity() {
         //status_msg = 'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
     }
 
+    private fun go_sample_pose(){
+        demomode = true
+        fixedRateTimer(period = interval_go_signal, initialDelay = 0){
+            go_target()
+        }
+    }
+    private fun go_target() {
+        //setvalue(idx_rb_pose,value)
+        if(demomode == true) {
+        //var robot_pose =
+        }
+    }
 
     private fun setvalue(subindex : Int, value : Int){
         Log.d(TAG, "setvalue in/ sbidx : $subindex / val : $value")
@@ -748,7 +784,18 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    private fun load_file(rawfiledata : String?){
+        //string 6개씩 분할 (공백 / 엔터) -> n*6 double arr에 할당
+        val temp = rawfiledata?.split("\\n")
+        val cmdlength = temp?.size
 
+        var temptemp: Array<Array<String>>? =
+            cmdlength?.let { Array(it){Array(6){""}} }
+        for(i in 0..cmdlength!!) {
+            temptemp?.set(i, temp[i].split("\\s").toTypedArray())
+        }
+        Log.d(TAG, "load file split : \n$temptemp")
+    }
 
     ////util
     private fun matmltply(a :Array<Array<Double>>, b : Array<Array<Double>>) : Array<Array<Double>> {
