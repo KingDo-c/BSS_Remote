@@ -89,16 +89,16 @@ class MainActivity : AppCompatActivity() {
     var rawfiledata : String? = null
 
     val q_range = arrayOf(arrayOf(-1, 95),
-        arrayOf(-1, 100),
-        arrayOf(-1, 130),
-        arrayOf(-90, 0),
-        arrayOf(-25, 25),
-        arrayOf(-30, 30))
+                        arrayOf(-1, 100),
+                        arrayOf(-1, 130),
+                        arrayOf(-90, 0),
+                        arrayOf(-25, 25),
+                        arrayOf(-30, 30))
     val step_q = 2//10
     var T0E : Array<Array<Double>> = arrayOf(arrayOf(1.0, 0.0, 0.0, 0.0),
-        arrayOf(0.0, 1.0, 0.0, 0.0),
-        arrayOf(0.0, 0.0, 1.0, 0.0),
-        arrayOf(0.0, 0.0, 0.0, 1.0))
+                                            arrayOf(0.0, 1.0, 0.0, 0.0),
+                                            arrayOf(0.0, 0.0, 1.0, 0.0),
+                                            arrayOf(0.0, 0.0, 0.0, 1.0))
 
     // About socket
     private lateinit var mHandler: Handler
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 val samplepose = data?.getStringExtra("samplepose")
                 rawfiledata = samplepose
-                Toast.makeText(applicationContext, "sample pose : $samplepose", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "sample pose : \n $samplepose", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -144,6 +144,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.demo.setOnClickListener{
             gosamplflag = true
+            load_file(rawfiledata)
         }
         binding.file.setOnClickListener {
             Toast.makeText(applicationContext, "file open", Toast.LENGTH_SHORT).show()
@@ -236,12 +237,21 @@ class MainActivity : AppCompatActivity() {
 
             override fun onProgressChanged(p0: SeekBar?, progress: Int, p2: Boolean) {
                 binding.textbaseval.text="$progress" //문자 내부에 변수 처리
+
+                if(binding.seekBar1.progress > 50)
+                    show_text.text="+++"
+                //set q val~~~
+                else if(binding.seekBar1.progress <50)
+                    show_text.text="---"
+                //set q val~~~   >>> 원래대로 돌아가는 ~
             }
             override fun onStartTrackingTouch(p0: SeekBar?) {
                 println("움직임 시작")
             }
             override fun onStopTrackingTouch(p0: SeekBar?) {
                 println("움직임 끝")
+                binding.seekBar1.progress = 50
+                show_text.text=binding.seekBar1.progress.toString()
             }
         })
         binding.seekBar2.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -467,8 +477,9 @@ class MainActivity : AppCompatActivity() {
                     }
                     if (gosamplflag == true){
                         Log.d(TAG, "go samplflag / flag : $gosamplflag")
+                        show_text.text = "$rawfiledata"
                         load_file(rawfiledata)
-                        go_sample_pose()
+                        //go_sample_pose()
                     }
                     if (homeflag == true){
                         Log.d(TAG, "go home / flag : $homeflag")
@@ -750,12 +761,6 @@ class MainActivity : AppCompatActivity() {
         //status_msg = 'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
     }
 
-    private fun go_sample_pose(){
-        demomode = true
-        fixedRateTimer(period = interval_go_signal, initialDelay = 0){
-            go_target()
-        }
-    }
     private fun go_target() {
         //setvalue(idx_rb_pose,value)
         if(demomode == true) {
@@ -784,18 +789,55 @@ class MainActivity : AppCompatActivity() {
         recvflag = false
     }
 
+    private fun go_sample_pose(){
+        demomode = true
+        fixedRateTimer(period = interval_go_signal, initialDelay = 0){
+            go_target()
+        }
+    }
 
     private fun load_file(rawfiledata : String?){
         //string 6개씩 분할 (공백 / 엔터) -> n*6 double arr에 할당
-        val temp = rawfiledata?.split("\\n")
-        val cmdlength = temp?.size
-
-        var temptemp: Array<Array<String>>? =
-            cmdlength?.let { Array(it){Array(6){""}} }
-        for(i in 0..cmdlength!!) {
-            temptemp?.set(i, temp[i].split("\\s").toTypedArray())
+        if (rawfiledata.isNullOrBlank()) {
+            show_text.text = "No data available"
+            return
         }
-        Log.d(TAG, "load file split : \n$temptemp")
+
+        val linetmp = rawfiledata.toString().split("\n".toRegex())
+
+        // 데이터를 저장할 2차원 배열 생성
+        val cutdata = Array(linetmp.size) { Array(6) { 0.0 } }
+
+        for (i in cutdata.indices) {
+            val arrtmp = linetmp[i].split("\\s+".toRegex())
+
+            for (j in arrtmp.indices) {
+                cutdata[i][j] = arrtmp[j].toDoubleOrNull() ?: 0.0
+            }
+        }
+
+        // 이제 cutdata 배열에 데이터가 할당되었습니다.
+        // 원하는 처리를 수행하면 됩니다.
+        // 예를 들어, 출력하려면 다음과 같이 할 수 있습니다.
+        for (row in cutdata) {
+            println(row.joinToString(", "))
+        }
+
+//        val arrtmp = linetmp.toString().split("\\s+".toRegex())
+//
+//        val linenum = linetmp.size
+//        show_text.text=linenum.toString()
+//
+//
+//       show_text.text= cutdata.toString()
+        //show_text.text = "$arrtmp1"
+//        var temptemp: Array<Array<String>>? =
+//            cmdlength?.let { Array(it){Array(6){""}} }
+//        for(i in 0..cmdlength!!) {
+//            temptemp?.set(i, dataarr[i].split("\\s").toTypedArray())
+//        }
+//        Log.d(TAG, "load file split : \n$temptemp")
+
     }
 
     ////util
