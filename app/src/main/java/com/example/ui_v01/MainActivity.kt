@@ -802,41 +802,29 @@ class MainActivity : AppCompatActivity() {
             show_text.text = "No data available"
             return
         }
-
+        // 줄단위 저장
         val linetmp = rawfiledata.toString().split("\n".toRegex())
 
-        // 데이터를 저장할 2차원 배열 생성
-        val cutdata = Array(linetmp.size) { Array(6) { 0.0 } }
+        // 데이터를 저장할 2차원 배열 
+        val cutdata = Array(linetmp.size) { Array(6) {0.0} }
+        Log.d(TAG, "linetmp : $linetmp")
 
-        for (i in cutdata.indices) {
+        for (i in linetmp.indices) {
+            //줄 별로 요소 저장
             val arrtmp = linetmp[i].split("\\s+".toRegex())
-
-            for (j in arrtmp.indices) {
-                cutdata[i][j] = arrtmp[j].toDoubleOrNull() ?: 0.0
+            Log.d(TAG, "arrtmp : $arrtmp")
+            for (j in 0..5) {
+                cutdata[i][j] = arrtmp[j].toDouble()
             }
         }
 
-        // 이제 cutdata 배열에 데이터가 할당되었습니다.
-        // 원하는 처리를 수행하면 됩니다.
-        // 예를 들어, 출력하려면 다음과 같이 할 수 있습니다.
-        for (row in cutdata) {
-            println(row.joinToString(", "))
-        }
-
-//        val arrtmp = linetmp.toString().split("\\s+".toRegex())
-//
-//        val linenum = linetmp.size
-//        show_text.text=linenum.toString()
-//
-//
-//       show_text.text= cutdata.toString()
-        //show_text.text = "$arrtmp1"
-//        var temptemp: Array<Array<String>>? =
-//            cmdlength?.let { Array(it){Array(6){""}} }
-//        for(i in 0..cmdlength!!) {
-//            temptemp?.set(i, dataarr[i].split("\\s").toTypedArray())
+        //save check
+//        for(k in 0..1){
+//            for(l in 0..5) {
+//                val cutele = cutdata[k][l]
+//                Log.d(TAG, "cutele$k$l : $cutele")
+//            }
 //        }
-//        Log.d(TAG, "load file split : \n$temptemp")
 
     }
 
