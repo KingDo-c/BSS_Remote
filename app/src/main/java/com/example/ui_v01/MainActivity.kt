@@ -16,10 +16,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ui_v01.databinding.ActivityMainBinding
+import kotlinx.coroutines.delay
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.Socket
+import java.util.Timer
 import kotlin.Boolean
 import kotlin.ByteArray
 import kotlin.DoubleArray
@@ -29,6 +31,8 @@ import kotlin.String
 import kotlin.Unit
 import kotlin.byteArrayOf
 import kotlin.concurrent.fixedRateTimer
+import kotlin.concurrent.schedule
+import kotlin.concurrent.timer
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
@@ -65,6 +69,8 @@ class MainActivity : AppCompatActivity() {
 
     private var demomode = false
 
+    private var nextpose = false
+
     var recvdata = ByteArray(32)
 
     // index val
@@ -80,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     val idx_stop = 12
 
     val interval_btw_poses : Long = 3  // seconds,  time delay during robot motion
-    val interval_go_signal : Long = 100  // milliseconds
+    val interval_go_signal : Long = 1000  // milliseconds
     val sampling_time : Long = 10 // milliseconds
 
     val unit_from_ui_to_zub = 1000.0
@@ -144,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.demo.setOnClickListener{
             gosamplflag = true
-            load_file(rawfiledata)
+            //load_file(rawfiledata)
         }
         binding.file.setOnClickListener {
             Toast.makeText(applicationContext, "file open", Toast.LENGTH_SHORT).show()
@@ -162,7 +168,7 @@ class MainActivity : AppCompatActivity() {
 
         ///////////coil posi
         binding.gobtn.setOnClickListener{
-            show_text.text = "$rawfiledata"
+            nextpose = true
         }
         binding.stopbtn.setOnClickListener{
         }
@@ -477,9 +483,10 @@ class MainActivity : AppCompatActivity() {
                     }
                     if (gosamplflag == true){
                         Log.d(TAG, "go samplflag / flag : $gosamplflag")
-                        show_text.text = "$rawfiledata"
+                        //show_text.text = "$rawfiledata"
                         load_file(rawfiledata)
                         //go_sample_pose()
+                        gosamplflag = false
                     }
                     if (homeflag == true){
                         Log.d(TAG, "go home / flag : $homeflag")
@@ -682,7 +689,8 @@ class MainActivity : AppCompatActivity() {
     private fun set_q_value(des_q : DoubleArray){
         Log.d(TAG, "set q val")
         for(i in des_q.indices) {
-            //Log.d(TAG, "set q val loop : $i")
+            val desq_ele_val = des_q[i]
+            Log.d(TAG, "des q$i val  : $desq_ele_val")
             setvalue(idx_des_joint + i, (des_q[i] * unit_from_ui_to_zub).toInt())
         }
         val value = 1
@@ -789,12 +797,7 @@ class MainActivity : AppCompatActivity() {
         recvflag = false
     }
 
-    private fun go_sample_pose(){
-        demomode = true
-        fixedRateTimer(period = interval_go_signal, initialDelay = 0){
-            go_target()
-        }
-    }
+
 
     private fun load_file(rawfiledata : String?){
         //string 6개씩 분할 (공백 / 엔터) -> n*6 double arr에 할당
@@ -817,7 +820,7 @@ class MainActivity : AppCompatActivity() {
                 cutdata[i][j] = arrtmp[j].toDouble()
             }
         }
-
+//        go_sample_pose(cutdata)
         //save check
 //        for(k in 0..1){
 //            for(l in 0..5) {
@@ -826,9 +829,35 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 
+        for (i in cutdata.indices) {
+            //fixedRateTimer(period = interval_go_signal, initialDelay = 0) {
+                //go_target()
+            set_q_value(cutdata[i].toDoubleArray())
+                Timer().schedule(1000) {
+                    Log.d(TAG, "Wait for next pose...")
+                }
+        }
 
+        timer(period = 1000, initialDelay = 100){
+
+            if (i == cutdata.size-1){
+                cancel()
+            }
+        }
     }
 
+    private fun go_sample_pose(cutdata : Array<Array<Double>>) {
+        Log.d(TAG, "go_sample_pose in")
+        val sizeofcutdata = cutdata.indices
+        Log.d(TAG, "cutdata indice $sizeofcutdata")
+        demomode = true
+        for (i in cutdata.indices) {
+            fixedRateTimer(period = interval_go_signal, initialDelay = 0) {
+                //go_target()
+                set_q_value(cutdata[i].toDoubleArray())
+            }
+        }
+    }
     ////util
     private fun matmltply(a :Array<Array<Double>>, b : Array<Array<Double>>) : Array<Array<Double>> {
         var result: Array<Array<Double>> =arrayOf(arrayOf(0.0,0.0,0.0,0.0),
