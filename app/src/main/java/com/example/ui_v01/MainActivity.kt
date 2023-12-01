@@ -362,8 +362,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 MotionEvent.ACTION_UP -> { //뗄때
                     jointflag = false
-                    downjointflag = false
-                    upjointflag = false
+//                    downjointflag = false
+//                    upjointflag = false
                     Log.d(TAG, "joint flag $jointflag")
                     //if(opt) targetseekBar.progress--
                     //else targetseekBar.progress++
@@ -459,12 +459,12 @@ class MainActivity : AppCompatActivity() {
                     if (upjointflag == true){
                         Log.d(TAG, "cnct jointflag true / prss id : $pressedid")
                         up_joint(pressedid)
-                        //upjointflag = false
+                        upjointflag = false
                     }
                     if (downjointflag == true){
                         Log.d(TAG, "cnct jointflag true / prss id : $pressedid")
                         down_joint(pressedid)
-                        //downjointflag = false
+                        downjointflag = false
                     }
 //                    if (sendflag == true) {
 //                        setvalue(subindex, value)
