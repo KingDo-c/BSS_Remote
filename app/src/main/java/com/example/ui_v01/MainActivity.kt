@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                         arrayOf(-90, 0),
                         arrayOf(-25, 25),
                         arrayOf(-30, 30))
-    val step_q = 10//10
+    val step_q = 3//10
     var T0E : Array<Array<Double>> = arrayOf(arrayOf(1.0, 0.0, 0.0, 0.0),
                                             arrayOf(0.0, 1.0, 0.0, 0.0),
                                             arrayOf(0.0, 0.0, 1.0, 0.0),
@@ -238,108 +238,108 @@ class MainActivity : AppCompatActivity() {
             binding.textstatus.text="testfunc"
         }
 
-        //seek bar slider (joint control)
-        binding.seekBar1.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
-            override fun onProgressChanged(p0: SeekBar?, progress: Int, p2: Boolean) {
-                binding.textbaseval.text="$progress" //문자 내부에 변수 처리
-
-                if(binding.seekBar1.progress > 50)
-                    show_text.text="+++"
-                //set q val~~~
-                else if(binding.seekBar1.progress <50)
-                    show_text.text="---"
-                //set q val~~~   >>> 원래대로 돌아가는 ~
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-                println("움직임 시작")
-            }
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                println("움직임 끝")
-                binding.seekBar1.progress = 50
-                show_text.text=binding.seekBar1.progress.toString()
-            }
-        })
-        binding.seekBar2.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                binding.textsholderval.text="$p1" //문자 내부에 변수 처리 $
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-                println("움직임 시작")
-            }
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                println("움직임 끝")
-            }
-        })
-        binding.seekBar3.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                binding.textdepthval.text="$p1" //문자 내부에 변수 처리 $
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-                println("움직임 시작")
-            }
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                println("움직임 끝")
-            }
-        })
-        binding.seekBar4.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                binding.textwrist1val.text="$p1" //문자 내부에 변수 처리 $
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-                println("움직임 시작")
-            }
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                println("움직임 끝")
-            }
-        })
-        binding.seekBar5.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                binding.textwrist2val.text="$p1" //문자 내부에 변수 처리 $
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-                println("움직임 시작")
-            }
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                println("움직임 끝")
-            }
-        })
-        binding.seekBar6.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                binding.textwrist3val.text="$p1" //문자 내부에 변수 처리 $
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-                println("움직임 시작")
-            }
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                println("움직임 끝")
-            }
-        })
-
+//        //seek bar slider (joint control)
+//        binding.seekBar1.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//
+//            override fun onProgressChanged(p0: SeekBar?, progress: Int, p2: Boolean) {
+//                binding.textbaseval.text="$progress" //문자 내부에 변수 처리
+//
+//                if(binding.seekBar1.progress > 50)
+//                    show_text.text="+++"
+//                //set q val~~~
+//                else if(binding.seekBar1.progress <50)
+//                    show_text.text="---"
+//                //set q val~~~   >>> 원래대로 돌아가는 ~
+//            }
+//            override fun onStartTrackingTouch(p0: SeekBar?) {
+//                println("움직임 시작")
+//            }
+//            override fun onStopTrackingTouch(p0: SeekBar?) {
+//                println("움직임 끝")
+//                binding.seekBar1.progress = 50
+//                show_text.text=binding.seekBar1.progress.toString()
+//            }
+//        })
+//        binding.seekBar2.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//
+//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+//                binding.textsholderval.text="$p1" //문자 내부에 변수 처리 $
+//            }
+//            override fun onStartTrackingTouch(p0: SeekBar?) {
+//                println("움직임 시작")
+//            }
+//            override fun onStopTrackingTouch(p0: SeekBar?) {
+//                println("움직임 끝")
+//            }
+//        })
+//        binding.seekBar3.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//
+//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+//                binding.textdepthval.text="$p1" //문자 내부에 변수 처리 $
+//            }
+//            override fun onStartTrackingTouch(p0: SeekBar?) {
+//                println("움직임 시작")
+//            }
+//            override fun onStopTrackingTouch(p0: SeekBar?) {
+//                println("움직임 끝")
+//            }
+//        })
+//        binding.seekBar4.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//
+//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+//                binding.textwrist1val.text="$p1" //문자 내부에 변수 처리 $
+//            }
+//            override fun onStartTrackingTouch(p0: SeekBar?) {
+//                println("움직임 시작")
+//            }
+//            override fun onStopTrackingTouch(p0: SeekBar?) {
+//                println("움직임 끝")
+//            }
+//        })
+//        binding.seekBar5.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//
+//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+//                binding.textwrist2val.text="$p1" //문자 내부에 변수 처리 $
+//            }
+//            override fun onStartTrackingTouch(p0: SeekBar?) {
+//                println("움직임 시작")
+//            }
+//            override fun onStopTrackingTouch(p0: SeekBar?) {
+//                println("움직임 끝")
+//            }
+//        })
+//        binding.seekBar6.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//
+//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+//                binding.textwrist3val.text="$p1" //문자 내부에 변수 처리 $
+//            }
+//            override fun onStartTrackingTouch(p0: SeekBar?) {
+//                println("움직임 시작")
+//            }
+//            override fun onStopTrackingTouch(p0: SeekBar?) {
+//                println("움직임 끝")
+//            }
+//        })
+//
         //seek bar button (joint control +,- button)
-        sbctrlbtn(binding.m1,binding.seekBar1,true, 0)
-        sbctrlbtn(binding.m2,binding.seekBar2,true, 1)
-        sbctrlbtn(binding.m3,binding.seekBar3,true, 2)
-        sbctrlbtn(binding.m4,binding.seekBar4,true, 3)
-        sbctrlbtn(binding.m5,binding.seekBar5,true, 4)
-        sbctrlbtn(binding.m6,binding.seekBar6,true, 5)
-        sbctrlbtn(binding.p1,binding.seekBar1,false, 0)
-        sbctrlbtn(binding.p2,binding.seekBar2,false, 1)
-        sbctrlbtn(binding.p3,binding.seekBar3,false, 2)
-        sbctrlbtn(binding.p4,binding.seekBar4,false, 3)
-        sbctrlbtn(binding.p5,binding.seekBar5,false, 4)
-        sbctrlbtn(binding.p6,binding.seekBar6,false, 5)
+        sbctrlbtn(binding.m1,true, 0)
+        sbctrlbtn(binding.m2,true, 1)
+        sbctrlbtn(binding.m3,true, 2)
+        sbctrlbtn(binding.m4,true, 3)
+        sbctrlbtn(binding.m5,true, 4)
+        sbctrlbtn(binding.m6,true, 5)
+        sbctrlbtn(binding.p1,false, 0)
+        sbctrlbtn(binding.p2,false, 1)
+        sbctrlbtn(binding.p3,false, 2)
+        sbctrlbtn(binding.p4,false, 3)
+        sbctrlbtn(binding.p5,false, 4)
+        sbctrlbtn(binding.p6,false, 5)
 
 
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun sbctrlbtn(targetbutton: Button, targetseekBar: SeekBar, opt:Boolean, id : Int){
+    fun sbctrlbtn(targetbutton: Button, opt:Boolean, id : Int){
         Log.d(TAG, "sbctrlbtn on , id : $id, opt : $opt")
         targetbutton.setOnTouchListener { _, event ->
             when (event.action) {
@@ -348,13 +348,13 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "prss btn : $pressedid")
 
                     if(opt) {
-                        startDecre(targetseekBar)
+                        //startDecre(targetseekBar)
                         Log.d(TAG, "start decre")
                         downjointflag = true
                         //up_joint(pressedid)
                     }
                     else {
-                        startIncre(targetseekBar)
+                        //startIncre(targetseekBar)
                         Log.d(TAG, "start incre")
                         upjointflag = true
                         //down_joint(pressedid)
@@ -362,9 +362,11 @@ class MainActivity : AppCompatActivity() {
                 }
                 MotionEvent.ACTION_UP -> { //뗄때
                     jointflag = false
+                    downjointflag = false
+                    upjointflag = false
                     Log.d(TAG, "joint flag $jointflag")
-                    if(opt) targetseekBar.progress--
-                    else targetseekBar.progress++
+                    //if(opt) targetseekBar.progress--
+                    //else targetseekBar.progress++
                     stopIncrementing()
                 }
             }
@@ -457,12 +459,12 @@ class MainActivity : AppCompatActivity() {
                     if (upjointflag == true){
                         Log.d(TAG, "cnct jointflag true / prss id : $pressedid")
                         up_joint(pressedid)
-                        upjointflag = false
+                        //upjointflag = false
                     }
                     if (downjointflag == true){
                         Log.d(TAG, "cnct jointflag true / prss id : $pressedid")
                         down_joint(pressedid)
-                        downjointflag = false
+                        //downjointflag = false
                     }
 //                    if (sendflag == true) {
 //                        setvalue(subindex, value)
