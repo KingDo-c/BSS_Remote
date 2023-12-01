@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                         arrayOf(-90, 0),
                         arrayOf(-25, 25),
                         arrayOf(-30, 30))
-    val step_q = 2//10
+    val step_q = 10//10
     var T0E : Array<Array<Double>> = arrayOf(arrayOf(1.0, 0.0, 0.0, 0.0),
                                             arrayOf(0.0, 1.0, 0.0, 0.0),
                                             arrayOf(0.0, 0.0, 1.0, 0.0),
@@ -829,20 +829,26 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 
-        for (i in cutdata.indices) {
-            //fixedRateTimer(period = interval_go_signal, initialDelay = 0) {
-                //go_target()
-            set_q_value(cutdata[i].toDoubleArray())
-                Timer().schedule(1000) {
-                    Log.d(TAG, "Wait for next pose...")
-                }
-        }
+//        for (i in cutdata.indices) {
+//            //fixedRateTimer(period = interval_go_signal, initialDelay = 0) {
+//                //go_target()
+//            set_q_value(cutdata[i].toDoubleArray())
+//                Timer().schedule(1000) {
+//                    Log.d(TAG, "Wait for next pose...")
+//                }
+//        }
 
-        timer(period = 1000, initialDelay = 100){
+        var k = 0
+        timer(period = 3000, initialDelay = 100){
+            set_q_value(cutdata[k].toDoubleArray())
 
-            if (i == cutdata.size-1){
+            Log.d(TAG, "k : $k")
+            if (k == cutdata.size-1){
                 cancel()
+                Log.d(TAG, "iter- out")
             }
+            Log.d(TAG, "Wait for next pose...")
+            k++
         }
     }
 
