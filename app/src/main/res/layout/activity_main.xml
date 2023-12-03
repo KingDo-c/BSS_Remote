@@ -5,6 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#999999"
+    android:scrollbarSize="30dp"
+    android:scrollbarStyle="outsideOverlay"
+    android:tooltipText="SpeedControl"
     tools:context=".MainActivity"
     tools:layout_editor_absoluteX="-67dp"
     tools:layout_editor_absoluteY="-30dp">
@@ -110,6 +113,7 @@
                 android:layout_marginBottom="5dp"
                 android:background="@drawable/buttonsource"
                 android:text="Package"
+                android:visibility="invisible"
                 tools:ignore="ButtonStyle" />
 
             <LinearLayout
@@ -721,6 +725,41 @@
 
         </LinearLayout>
 
+        <!-- title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical">
+
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:gravity="center"
+            android:text="Speed"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:layout_marginLeft="10dp"/>
+
+            <SeekBar
+                android:id="@+id/speedcontorl"
+                style="@android:style/Widget.Material.SeekBar.Discrete"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:indeterminate="false"
+                android:max="10"
+                android:min="1"
+                android:progress="5"
+                android:tooltipText="Speed" />
+        </LinearLayout>
+
+
+
+
+
     </LinearLayout>  <!--joint ctrl -->
 
 
@@ -729,8 +768,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/backgroundsource"
         android:gravity="center|top"
@@ -1083,7 +1122,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"
                 android:background="@drawable/buttonsource"
-                android:onClick="buttonClick"
+                android:visibility="invisible"
                 android:text="Go" /><!-- go button -->
 
         </LinearLayout> <!-- go/stop/home -->
@@ -1321,9 +1360,9 @@
         android:layout_width="0dp"
         android:layout_height="135dp"
 
-        android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
 
         android:background="#000000"
 
@@ -1364,30 +1403,29 @@
             android:id="@+id/imageView2"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:background="#FFFFFF"
-
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
 
             android:layout_marginTop="205dp"
-            app:srcCompat="@drawable/pitchlab"/>
+            android:layout_marginRight="10dp"
+
+            android:background="#FFFFFF"
+            app:srcCompat="@drawable/pitchlab" />
 
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="match_parent"
             android:layout_height="220dp"
 
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:background="#FFFFFF"
+
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="0dp"
-            android:background="#FFFFFF"
-            app:srcCompat="@drawable/remed"/>
-
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/remed" />
 
 
     </LinearLayout>

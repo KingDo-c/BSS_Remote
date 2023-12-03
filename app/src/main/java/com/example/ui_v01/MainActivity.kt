@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                         arrayOf(-25, 25),
                         arrayOf(-30, 30))
 
-    val step_q = 3//10
+    var step_q = 5//10
     val step_translation = 30 // mm
     val step_rotation = 5 // degree
 
@@ -233,6 +233,21 @@ class MainActivity : AppCompatActivity() {
 //        posectrlbtn(binding.rxp,false, 3)
 //        posectrlbtn(binding.ryp,false, 4)
 //        posectrlbtn(binding.rzp,false, 5)
+
+        binding.speedcontorl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, progress: Int, p2: Boolean) {
+                binding.textbaseval.text="$progress" //문자 내부에 변수 처리
+                show_text.text="Joint Control Speed ${binding.speedcontorl.progress}"
+            }
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+                println("움직임 시작")
+            }
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+                println("움직임 끝")
+                step_q=binding.speedcontorl.progress
+            }
+        })
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -302,6 +317,7 @@ class MainActivity : AppCompatActivity() {
             false // 직후 click event 를 받기 위해 false 반환
         }
     }
+
 
     @SuppressLint("ClickableViewAccessibility")
     fun lsctrlbtn(targetbutton: Button, opt:Boolean){
