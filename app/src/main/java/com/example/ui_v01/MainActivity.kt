@@ -221,18 +221,18 @@ class MainActivity : AppCompatActivity() {
         sbctrlbtn(binding.p6,false, 5)
 
         //pose control btn
-        posectrlbtn(binding.xm,true, 0)
-        posectrlbtn(binding.ym,true, 1)
-        posectrlbtn(binding.zm,true, 2)
-        posectrlbtn(binding.rxm,true, 3)
-        posectrlbtn(binding.rym,true, 4)
-        posectrlbtn(binding.rzm,true, 5)
-        posectrlbtn(binding.xp,false, 0)
-        posectrlbtn(binding.yp,false, 1)
-        posectrlbtn(binding.zp,false, 2)
-        posectrlbtn(binding.rxp,false, 3)
-        posectrlbtn(binding.ryp,false, 4)
-        posectrlbtn(binding.rzp,false, 5)
+//        posectrlbtn(binding.xm,true, 0)
+//        posectrlbtn(binding.ym,true, 1)
+//        posectrlbtn(binding.zm,true, 2)
+//        posectrlbtn(binding.rxm,true, 3)
+//        posectrlbtn(binding.rym,true, 4)
+//        posectrlbtn(binding.rzm,true, 5)
+//        posectrlbtn(binding.xp,false, 0)
+//        posectrlbtn(binding.yp,false, 1)
+//        posectrlbtn(binding.zp,false, 2)
+//        posectrlbtn(binding.rxp,false, 3)
+//        posectrlbtn(binding.ryp,false, 4)
+//        posectrlbtn(binding.rzp,false, 5)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -670,6 +670,7 @@ class MainActivity : AppCompatActivity() {
         show_text.text = "Joint Control :: $temp th joint +"
         set_q_value(des_q)
     }
+
     private fun down_joint(i: Int){
         Log.d(TAG, "downjoint/ i:$i")
         val des_q = curq
