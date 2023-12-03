@@ -152,15 +152,29 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        var connectstate = false
+
         ////////status text
         show_text = binding.textstatus
 
         ////////option
+//        binding.connectbt.setOnClickListener{
+//            if(connectstate == false){
+//                connectt(0)
+//                connectstate=!connectstate
+//                //show_text.text="Connect"
+//                binding.connectbt.text="Disconnect"
+//            }
+//            else{
+//                //socket.close()
+//                connectstate=!connectstate
+//                //show_text.text="Disconnect"
+//                binding.connectbt.text="Connect"
+//            }
+//        }
         binding.connectbt.setOnClickListener{
             connectt(0)
-            binding.textstatus.text="connecting...."
         }
-
         binding.demo.setOnClickListener{
             gosamplflag = true
             //load_file(rawfiledata)
@@ -191,151 +205,7 @@ class MainActivity : AppCompatActivity() {
             homeflag = true
         }
 
-        ///////////position
-//        binding.xp.setOnClickListener{
-//            sendflag = true
-//            //sended_num += 1
-//            binding.textstatus.text="send...."
-//        }
-//        binding.yp.setOnClickListener{
-//            recvflag = true
-//            //sended_num -= 1
-//            binding.textstatus.text="recv...."
-//        }
-//        binding.zp.setOnClickListener {
-//            testflag = true
-//            binding.textstatus.text="testfunc"
-//        }
-//
-//        binding.xm.setOnClickListener{
-//            sendflag = true
-//            //sended_num += 1
-//            binding.textstatus.text="send...."
-//        }
-//        binding.ym.setOnClickListener{
-//            recvflag = true
-//            //sended_num -= 1
-//            binding.textstatus.text="recv...."
-//        }
-//        binding.zm.setOnClickListener {
-//            testflag = true
-//            binding.textstatus.text="testfunc"
-//        }
-//
-//        ///////////orientation
-//        binding.rxp.setOnClickListener{
-//            sendflag = true
-//            //sended_num += 1
-//            binding.textstatus.text="send...."
-//        }
-//        binding.ryp.setOnClickListener{
-//            recvflag = true
-//            //sended_num -= 1
-//            binding.textstatus.text="recv...."
-//        }
-//        binding.rzp.setOnClickListener {
-//            testflag = true
-//            binding.textstatus.text="testfunc"
-//        }
-//
-//        binding.rxm.setOnClickListener{
-//            sendflag = true
-//            //sended_num += 1
-//            binding.textstatus.text="send...."
-//        }
-//        binding.rym.setOnClickListener{
-//            recvflag = true
-//            //sended_num -= 1
-//            binding.textstatus.text="recv...."
-//        }
-//        binding.rzm.setOnClickListener {
-//            testflag = true
-//            binding.textstatus.text="testfunc"
-//        }
 
-//        //seek bar slider (joint control)
-//        binding.seekBar1.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//
-//            override fun onProgressChanged(p0: SeekBar?, progress: Int, p2: Boolean) {
-//                binding.textbaseval.text="$progress" //문자 내부에 변수 처리
-//
-//                if(binding.seekBar1.progress > 50)
-//                    show_text.text="+++"
-//                //set q val~~~
-//                else if(binding.seekBar1.progress <50)
-//                    show_text.text="---"
-//                //set q val~~~   >>> 원래대로 돌아가는 ~
-//            }
-//            override fun onStartTrackingTouch(p0: SeekBar?) {
-//                println("움직임 시작")
-//            }
-//            override fun onStopTrackingTouch(p0: SeekBar?) {
-//                println("움직임 끝")
-//                binding.seekBar1.progress = 50
-//                show_text.text=binding.seekBar1.progress.toString()
-//            }
-//        })
-//        binding.seekBar2.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//
-//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-//                binding.textsholderval.text="$p1" //문자 내부에 변수 처리 $
-//            }
-//            override fun onStartTrackingTouch(p0: SeekBar?) {
-//                println("움직임 시작")
-//            }
-//            override fun onStopTrackingTouch(p0: SeekBar?) {
-//                println("움직임 끝")
-//            }
-//        })
-//        binding.seekBar3.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//
-//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-//                binding.textdepthval.text="$p1" //문자 내부에 변수 처리 $
-//            }
-//            override fun onStartTrackingTouch(p0: SeekBar?) {
-//                println("움직임 시작")
-//            }
-//            override fun onStopTrackingTouch(p0: SeekBar?) {
-//                println("움직임 끝")
-//            }
-//        })
-//        binding.seekBar4.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//
-//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-//                binding.textwrist1val.text="$p1" //문자 내부에 변수 처리 $
-//            }
-//            override fun onStartTrackingTouch(p0: SeekBar?) {
-//                println("움직임 시작")
-//            }
-//            override fun onStopTrackingTouch(p0: SeekBar?) {
-//                println("움직임 끝")
-//            }
-//        })
-//        binding.seekBar5.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//
-//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-//                binding.textwrist2val.text="$p1" //문자 내부에 변수 처리 $
-//            }
-//            override fun onStartTrackingTouch(p0: SeekBar?) {
-//                println("움직임 시작")
-//            }
-//            override fun onStopTrackingTouch(p0: SeekBar?) {
-//                println("움직임 끝")
-//            }
-//        })
-//        binding.seekBar6.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//
-//            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-//                binding.textwrist3val.text="$p1" //문자 내부에 변수 처리 $
-//            }
-//            override fun onStartTrackingTouch(p0: SeekBar?) {
-//                println("움직임 시작")
-//            }
-//            override fun onStopTrackingTouch(p0: SeekBar?) {
-//                println("움직임 끝")
-//            }
-//        })
-//
         //seek bar button (joint control +,- button)
         sbctrlbtn(binding.m1,true, 0)
         sbctrlbtn(binding.m2,true, 1)
@@ -350,7 +220,7 @@ class MainActivity : AppCompatActivity() {
         sbctrlbtn(binding.p5,false, 4)
         sbctrlbtn(binding.p6,false, 5)
 
-
+        //pose control btn
         posectrlbtn(binding.xm,true, 0)
         posectrlbtn(binding.ym,true, 1)
         posectrlbtn(binding.zm,true, 2)
@@ -364,6 +234,7 @@ class MainActivity : AppCompatActivity() {
         posectrlbtn(binding.ryp,false, 4)
         posectrlbtn(binding.rzp,false, 5)
     }
+
     @SuppressLint("ClickableViewAccessibility")
     fun posectrlbtn(targetbutton: Button, opt:Boolean, id : Int){
         Log.d(TAG, "posectrlbtn on , id : $id, opt : $opt")
@@ -397,7 +268,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     fun sbctrlbtn(targetbutton: Button, opt:Boolean, id : Int){
-        Log.d(TAG, "sbctrlbtn on , id : $id, opt : $opt")
+        Log.d(TAG, "Joint Control Mode / joint: $id / opt : $opt")
         targetbutton.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> { //눌렀을때
@@ -426,6 +297,10 @@ class MainActivity : AppCompatActivity() {
             }
             false
         }
+        targetbutton.setOnLongClickListener {
+            Log.d(TAG, "jointbtn long press")
+            false // 직후 click event 를 받기 위해 false 반환
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -439,12 +314,14 @@ class MainActivity : AppCompatActivity() {
                         lsupflag = true
                         lsdwnflag = false
                         lsstpflag = false
+                        show_text.text="Linear Stage up"
                         Log.d(TAG, "linear stage up / up : $lsupflag / down : $lsdwnflag / stop : $lsstpflag")
                     }
                     else {
                         lsupflag = false
                         lsdwnflag = true
                         lsstpflag = false
+                        show_text.text="Linear Stage Down"
                         Log.d(TAG, "linear stage down / up : $lsupflag / down : $lsdwnflag / stop : $lsstpflag")
                     }
                 }
@@ -575,6 +452,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             catch (e: NullPointerException ) {
+                show_text.text="connection error!"
+            }
+            catch (e: IOException){
                 show_text.text="connection error!"
             }
         }
@@ -787,7 +667,7 @@ class MainActivity : AppCompatActivity() {
         } //tolerance: 1
         val temp = i+1
         val showdesqi = des_q[i]
-        show_text.text = "$temp th joint value(desired): $showdesqi"
+        show_text.text = "Joint Control :: $temp th joint +"
         set_q_value(des_q)
     }
     private fun down_joint(i: Int){
@@ -803,7 +683,7 @@ class MainActivity : AppCompatActivity() {
         } //tolerance: 1
         val temp = i+1
         val showdesqi = des_q[i]
-        show_text.text = "$temp th joint value(desired): $showdesqi"
+        show_text.text = "Joint Control :: $temp th joint -"
         set_q_value(des_q)
     }
 

@@ -189,7 +189,7 @@
 
     <LinearLayout
         android:id="@+id/Layoutjoint"
-        android:layout_width="wrap_content"
+        android:layout_width="607dp"
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
@@ -203,7 +203,7 @@
 
         <TextView
             android:id="@+id/textJoint"
-            android:layout_width="match_parent"
+            android:layout_width="600dp"
             android:layout_height="30dp"
             android:fontFamily="sans-serif-condensed-medium"
             android:gravity="center"
@@ -213,13 +213,15 @@
             android:textSize="14sp" /> <!-- title -->
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="5dp"
             android:background="@drawable/backgroundsource"
+            android:gravity="center"
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -232,11 +234,10 @@
                 <TextView
                     android:id="@+id/textbase"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
-
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -247,11 +248,10 @@
                 <TextView
                     android:id="@+id/textsholder"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
-
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -262,11 +262,10 @@
                 <TextView
                     android:id="@+id/textdepth"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
-
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -277,11 +276,10 @@
                 <TextView
                     android:id="@+id/textwrist1"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
-
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -292,11 +290,10 @@
                 <TextView
                     android:id="@+id/textwrist2"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
-
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -307,11 +304,10 @@
                 <TextView
                     android:id="@+id/textwrist3"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
-
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -329,66 +325,66 @@
                 <Button
                     android:id="@+id/m1"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="-" />
 
                 <Button
                     android:id="@+id/m2"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="-" />
 
                 <Button
                     android:id="@+id/m3"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="-" />
 
                 <Button
                     android:id="@+id/m4"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="-" />
 
                 <Button
                     android:id="@+id/m5"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="-" />
 
                 <Button
                     android:id="@+id/m6"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="-" />
             </LinearLayout> <!-- -btn -->
@@ -400,11 +396,11 @@
                 <Button
                     android:id="@+id/p1"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:drawablePadding="10dp"
                     android:text="+" />
@@ -412,55 +408,55 @@
                 <Button
                     android:id="@+id/p2"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="+" />
 
                 <Button
                     android:id="@+id/p3"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="+" />
 
                 <Button
                     android:id="@+id/p4"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="+" />
 
                 <Button
                     android:id="@+id/p5"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="+" />
 
                 <Button
                     android:id="@+id/p6"
                     android:layout_width="80dp"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:background="@drawable/buttonsource"
                     android:text="+" />
             </LinearLayout> <!--+btn -->
@@ -472,9 +468,9 @@
                 <TextView
                     android:id="@+id/textbaseval"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -485,9 +481,9 @@
                 <TextView
                     android:id="@+id/textsholderval"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -498,9 +494,9 @@
                 <TextView
                     android:id="@+id/textdepthval"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -511,9 +507,9 @@
                 <TextView
                     android:id="@+id/textwrist1val"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -524,9 +520,9 @@
                 <TextView
                     android:id="@+id/textwrist2val"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -537,9 +533,9 @@
                 <TextView
                     android:id="@+id/textwrist3val"
                     android:layout_width="60dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -555,10 +551,10 @@
 
                 <TextView
                     android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -568,10 +564,10 @@
 
                 <TextView
                     android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -581,10 +577,10 @@
 
                 <TextView
                     android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -594,10 +590,10 @@
 
                 <TextView
                     android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -607,10 +603,10 @@
 
                 <TextView
                     android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -620,10 +616,10 @@
 
                 <TextView
                     android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="10dp"
                     android:focusable="auto"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
@@ -1317,6 +1313,7 @@
 
             </LinearLayout>
         </LinearLayout>
+
     </LinearLayout>
 
     <TextView
@@ -1350,5 +1347,49 @@
 
     <!-- coil pos -->
 
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/Layoutjoint"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#FFFFFF"
+
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+
+            android:layout_marginTop="205dp"
+            app:srcCompat="@drawable/pitchlab"/>
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="0dp"
+            android:background="#FFFFFF"
+            app:srcCompat="@drawable/remed"/>
+
+
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
