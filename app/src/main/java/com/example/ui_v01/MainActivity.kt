@@ -67,9 +67,12 @@ class MainActivity : AppCompatActivity() {
     private var packageflag = false
     private var gosamplflag = false
 
-    private var demomode = false
+    private var poseflag = false
+    private var upposeflag = false
+    private var downposeflag = false
 
-    private var nextpose = false
+    private var demomode = true
+
 
     var recvdata = ByteArray(32)
 
@@ -91,7 +94,12 @@ class MainActivity : AppCompatActivity() {
 
     val unit_from_ui_to_zub = 1000.0
     val curq = DoubleArray(6)
+    var des_pose = DoubleArray(6)
+    var q_status = IntArray(6)
 
+    lateinit var robot_poses : Array<Array<Double>> //listOf<Int>()
+    var n_pose = 0
+    var total_poses = 0
     var rawfiledata : String? = null
 
     val q_range = arrayOf(arrayOf(-1, 95),
@@ -100,7 +108,11 @@ class MainActivity : AppCompatActivity() {
                         arrayOf(-90, 0),
                         arrayOf(-25, 25),
                         arrayOf(-30, 30))
+
     val step_q = 3//10
+    val step_translation = 30 // mm
+    val step_rotation = 5 // degree
+
     var T0E : Array<Array<Double>> = arrayOf(arrayOf(1.0, 0.0, 0.0, 0.0),
                                             arrayOf(0.0, 1.0, 0.0, 0.0),
                                             arrayOf(0.0, 0.0, 1.0, 0.0),
@@ -148,10 +160,12 @@ class MainActivity : AppCompatActivity() {
             connectt(0)
             binding.textstatus.text="connecting...."
         }
+
         binding.demo.setOnClickListener{
             gosamplflag = true
             //load_file(rawfiledata)
         }
+
         binding.file.setOnClickListener {
             Toast.makeText(applicationContext, "file open", Toast.LENGTH_SHORT).show()
             val myIntent : Intent = Intent(this, Fileexplr :: class.java) //testact
@@ -168,75 +182,76 @@ class MainActivity : AppCompatActivity() {
 
         ///////////coil posi
         binding.gobtn.setOnClickListener{
-            nextpose = true
+            demomode = true
         }
         binding.stopbtn.setOnClickListener{
+            setvalue(idx_stop,1)
         }
         binding.homepositionbtn.setOnClickListener{
             homeflag = true
         }
 
         ///////////position
-        binding.xp.setOnClickListener{
-            sendflag = true
-            //sended_num += 1
-            binding.textstatus.text="send...."
-        }
-        binding.yp.setOnClickListener{
-            recvflag = true
-            //sended_num -= 1
-            binding.textstatus.text="recv...."
-        }
-        binding.zp.setOnClickListener {
-            testflag = true
-            binding.textstatus.text="testfunc"
-        }
-
-        binding.xm.setOnClickListener{
-            sendflag = true
-            //sended_num += 1
-            binding.textstatus.text="send...."
-        }
-        binding.ym.setOnClickListener{
-            recvflag = true
-            //sended_num -= 1
-            binding.textstatus.text="recv...."
-        }
-        binding.zm.setOnClickListener {
-            testflag = true
-            binding.textstatus.text="testfunc"
-        }
-
-        ///////////orientation
-        binding.rxp.setOnClickListener{
-            sendflag = true
-            //sended_num += 1
-            binding.textstatus.text="send...."
-        }
-        binding.ryp.setOnClickListener{
-            recvflag = true
-            //sended_num -= 1
-            binding.textstatus.text="recv...."
-        }
-        binding.rzp.setOnClickListener {
-            testflag = true
-            binding.textstatus.text="testfunc"
-        }
-
-        binding.rxm.setOnClickListener{
-            sendflag = true
-            //sended_num += 1
-            binding.textstatus.text="send...."
-        }
-        binding.rym.setOnClickListener{
-            recvflag = true
-            //sended_num -= 1
-            binding.textstatus.text="recv...."
-        }
-        binding.rzm.setOnClickListener {
-            testflag = true
-            binding.textstatus.text="testfunc"
-        }
+//        binding.xp.setOnClickListener{
+//            sendflag = true
+//            //sended_num += 1
+//            binding.textstatus.text="send...."
+//        }
+//        binding.yp.setOnClickListener{
+//            recvflag = true
+//            //sended_num -= 1
+//            binding.textstatus.text="recv...."
+//        }
+//        binding.zp.setOnClickListener {
+//            testflag = true
+//            binding.textstatus.text="testfunc"
+//        }
+//
+//        binding.xm.setOnClickListener{
+//            sendflag = true
+//            //sended_num += 1
+//            binding.textstatus.text="send...."
+//        }
+//        binding.ym.setOnClickListener{
+//            recvflag = true
+//            //sended_num -= 1
+//            binding.textstatus.text="recv...."
+//        }
+//        binding.zm.setOnClickListener {
+//            testflag = true
+//            binding.textstatus.text="testfunc"
+//        }
+//
+//        ///////////orientation
+//        binding.rxp.setOnClickListener{
+//            sendflag = true
+//            //sended_num += 1
+//            binding.textstatus.text="send...."
+//        }
+//        binding.ryp.setOnClickListener{
+//            recvflag = true
+//            //sended_num -= 1
+//            binding.textstatus.text="recv...."
+//        }
+//        binding.rzp.setOnClickListener {
+//            testflag = true
+//            binding.textstatus.text="testfunc"
+//        }
+//
+//        binding.rxm.setOnClickListener{
+//            sendflag = true
+//            //sended_num += 1
+//            binding.textstatus.text="send...."
+//        }
+//        binding.rym.setOnClickListener{
+//            recvflag = true
+//            //sended_num -= 1
+//            binding.textstatus.text="recv...."
+//        }
+//        binding.rzm.setOnClickListener {
+//            testflag = true
+//            binding.textstatus.text="testfunc"
+//        }
 
 //        //seek bar slider (joint control)
 //        binding.seekBar1.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -336,6 +351,48 @@ class MainActivity : AppCompatActivity() {
         sbctrlbtn(binding.p6,false, 5)
 
 
+        posectrlbtn(binding.xm,true, 0)
+        posectrlbtn(binding.ym,true, 1)
+        posectrlbtn(binding.zm,true, 2)
+        posectrlbtn(binding.rxm,true, 3)
+        posectrlbtn(binding.rym,true, 4)
+        posectrlbtn(binding.rzm,true, 5)
+        posectrlbtn(binding.xp,false, 0)
+        posectrlbtn(binding.yp,false, 1)
+        posectrlbtn(binding.zp,false, 2)
+        posectrlbtn(binding.rxp,false, 3)
+        posectrlbtn(binding.ryp,false, 4)
+        posectrlbtn(binding.rzp,false, 5)
+    }
+    @SuppressLint("ClickableViewAccessibility")
+    fun posectrlbtn(targetbutton: Button, opt:Boolean, id : Int){
+        Log.d(TAG, "posectrlbtn on , id : $id, opt : $opt")
+        targetbutton.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> { //눌렀을때
+                    pressedid = id
+                    Log.d(TAG, "prss btn : $pressedid")
+
+                    if(opt) {
+                        downposeflag = true
+                        Log.d(TAG, "downpose flag $downposeflag")
+                        //up_joint(pressedid)
+                    }
+                    else {
+                        upposeflag = true
+                        Log.d(TAG, "uppose flag $upposeflag")
+                        //down_joint(pressedid)
+                    }
+                }
+                MotionEvent.ACTION_UP -> { //뗄때
+                    //poseflag = false
+                    downposeflag = false
+                    upposeflag = false
+                    Log.d(TAG, "Pose flag :: Dwn: $downposeflag / Up: $upposeflag")
+                }
+            }
+            false
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -348,26 +405,23 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "prss btn : $pressedid")
 
                     if(opt) {
-                        //startDecre(targetseekBar)
-                        Log.d(TAG, "start decre")
                         downjointflag = true
-                        //up_joint(pressedid)
+                        Log.d(TAG, "Down Flag : $downjointflag")
                     }
                     else {
-                        //startIncre(targetseekBar)
-                        Log.d(TAG, "start incre")
                         upjointflag = true
-                        //down_joint(pressedid)
+                        Log.d(TAG, "Up Flag : $upjointflag")
                     }
                 }
+
                 MotionEvent.ACTION_UP -> { //뗄때
                     jointflag = false
-//                    downjointflag = false
-//                    upjointflag = false
-                    Log.d(TAG, "joint flag $jointflag")
+                    downjointflag = false
+                    upjointflag = false
+                    Log.d(TAG, "Flag :: dwn :$downjointflag / up :$upjointflag")
                     //if(opt) targetseekBar.progress--
                     //else targetseekBar.progress++
-                    stopIncrementing()
+                    //stopIncrementing()
                 }
             }
             false
@@ -448,7 +502,7 @@ class MainActivity : AppCompatActivity() {
                 e.printStackTrace()
                 show_text.text = "버퍼 생성 잘못 됨"
             }
-            show_text.text = "버퍼 생성 잘 됨"
+            show_text.text = "Connected"
 
             try {
                 while (true) {
@@ -457,52 +511,71 @@ class MainActivity : AppCompatActivity() {
 
                     //////////////////////////////
                     if (upjointflag == true){
-                        Log.d(TAG, "cnct jointflag true / prss id : $pressedid")
+                        Log.d(TAG, "jointflag true / prss id : $pressedid")
                         up_joint(pressedid)
-                        upjointflag = false
+                        //upjointflag = false
                     }
                     if (downjointflag == true){
-                        Log.d(TAG, "cnct jointflag true / prss id : $pressedid")
+                        Log.d(TAG, "jointflag true / prss id : $pressedid")
                         down_joint(pressedid)
-                        downjointflag = false
+                        //downjointflag = false
                     }
-//                    if (sendflag == true) {
-//                        setvalue(subindex, value)
-//                        showrecvdata()
-//                    }
-//                    if (recvflag == true){
-//                        getvalue(subindex)
-//                        showrecvdata()
-//                    }
+
+                    if(rawfiledata != null){
+                        if (upposeflag == true){
+                            Log.d(TAG, "poseflag true / prss id : $pressedid")
+                            up_pose(pressedid)
+                            upposeflag = false
+                        }
+
+                        if (downposeflag == true){
+                            Log.d(TAG, "poseflag true / prss id : $pressedid")
+                            //down_pose(pressedid)
+                            downposeflag = false
+                        }
+                    }
+                    else if(upposeflag || downposeflag){
+                        show_text.text = "no sample pose data"
+                        upposeflag = false
+                        downposeflag = false
+                    }
+
                     if (lsupflag == true){
                         up_stage()
                     }
+
                     if (lsdwnflag == true){
                         down_stage()
                     }
+
                     if (lsstpflag == true){
                         stop_stage()
                     }
+
                     if (gosamplflag == true){
                         Log.d(TAG, "go samplflag / flag : $gosamplflag")
                         //show_text.text = "$rawfiledata"
                         load_file(rawfiledata)
                         //go_sample_pose()
+                        show_text.text="Demo pos"
                         gosamplflag = false
                     }
                     if (homeflag == true){
                         Log.d(TAG, "go home / flag : $homeflag")
                         go_home()
                         homeflag = false
+                        show_text.text="Home pos"
                     }
                     if (packageflag == true){
                         Log.d(TAG, "go package / flag : $packageflag")
                         go_package()
                         packageflag = false
+                        show_text.text="Package pos"
                     }
                 }
             }
-            catch (e: Exception) {
+            catch (e: NullPointerException ) {
+                show_text.text="connection error!"
             }
         }
         checkUpdate.start()
@@ -717,7 +790,6 @@ class MainActivity : AppCompatActivity() {
         show_text.text = "$temp th joint value(desired): $showdesqi"
         set_q_value(des_q)
     }
-
     private fun down_joint(i: Int){
         Log.d(TAG, "downjoint/ i:$i")
         val des_q = curq
@@ -735,6 +807,69 @@ class MainActivity : AppCompatActivity() {
         set_q_value(des_q)
     }
 
+    private fun up_pose(i: Int){
+        Log.d(TAG, "uppose func in / id : $i ")
+        var ry = atan2(sqrt((T0E[2][0]).pow(2) + (T0E[2][1]).pow(2)), (T0E[2][2]))
+        var rz1 : Double
+        var rz2 : Double
+
+        if (isclose(ry, 0.0, deg2rad(1.0))) {
+            Log.d(TAG, "uppose func 1st if in")
+            ry = 0.0
+            rz1 = 0.0
+            rz2 = atan2(-(T0E[0][1]), (T0E[0][0]))
+        } else if (isclose(ry, PI, atol = deg2rad(1.0))) {
+            Log.d(TAG, "uppose func 1st elif in")
+            ry = PI
+            rz1 = 0.0
+            rz2 = atan2((T0E[0][1]), -(T0E[0][0]))
+        } else {
+            Log.d(TAG, "uppose func 1st else in")
+            rz1 = atan2((T0E[1][2]) / sin(ry), (T0E[0][2]) / sin(ry))
+            rz2 = atan2((T0E[2][1]) / sin(ry), -(T0E[2][0]) / sin(ry))
+            if (rz1 < 0) rz1 = rz1 + PI * 2
+            if (rz2 < 0) rz2 = rz2 + PI * 2
+        }
+
+
+//
+//  #     self.des_pose = list(map(float, [self.T0E[0, 3], self.T0E[1, 3], self.T0E[2, 3], np.rad2deg(rz2), np.rad2deg(ry), np.rad2deg(rz1)]))
+        des_pose = listOf(T0E[0][3], T0E[1][3], T0E[2][3], rad2deg(rz2), rad2deg(ry), rad2deg(rz1)).toDoubleArray()
+
+        for (l in des_pose.indices) {
+            val temp = des_pose[l]
+            Log.d(TAG, "before des_pose[$l] : $temp")
+        }
+
+        if (i < 3) {
+            Log.d(TAG, "uppose func 2nd if in")
+            des_pose[i] = des_pose[i] + step_translation
+        } else {
+            Log.d(TAG, "uppose func 2nd else in")
+            des_pose[i] = des_pose[i] + step_rotation
+        }
+
+        for (k in des_pose.indices) {
+            Log.d(TAG, "uppose func for loop in")
+            des_pose[k] = des_pose[k] * unit_from_ui_to_zub
+        }
+
+        for (l in des_pose.indices) {
+            val temp = des_pose[l]
+            Log.d(TAG, "after trans/rot/mult unit/ des_pose[$l] : $temp")
+        }
+        //demomode = false
+        go_target()
+//        np_des_pose = np.array(self.des_pose) * unit_from_ui_to_zub
+//        # # print(self.des_pose)
+
+//        self.des_pose = list(map(int, np_des_pose.tolist()))
+//        print(self.des_pose)
+//        self.is_demo_mode = False
+//        self.go_target()
+
+    }
+
     private fun go_home(){
         val value = 1
         Log.d(TAG, "index : $idx_go_home / value : $value")
@@ -748,6 +883,7 @@ class MainActivity : AppCompatActivity() {
         //'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
     }
 
+
     private fun up_stage() {
         val value = 1
         setvalue(idx_direction_stage, value)
@@ -756,7 +892,6 @@ class MainActivity : AppCompatActivity() {
         //#status_msg = 'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
         //#self.statusBar().showMessage(status_msg)
     }
-
     private fun down_stage(){
         val value = 0
         setvalue(idx_direction_stage, value)
@@ -764,17 +899,56 @@ class MainActivity : AppCompatActivity() {
 
         //status_msg = 'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
     }
-
     private fun stop_stage(){
         val value = 0
         setvalue(idx_move_stage, value)
         //status_msg = 'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
     }
 
+
     private fun go_target() {
-        //setvalue(idx_rb_pose,value)
-        if(demomode == true) {
-        //var robot_pose =
+        Log.d(TAG, "gotarget func in")
+        Log.d(TAG, "total poses $total_poses")
+        val comparearr = IntArray(6){1}
+        var np_robot_pose = DoubleArray(6)
+        var robot_pose = DoubleArray(robot_poses.size)
+
+        if(demomode == true){
+            Log.d(TAG, "gotarget func 1st if in")
+            robot_pose = robot_poses[n_pose].toDoubleArray()
+            for (i in robot_pose.indices){
+                Log.d(TAG, "gotarget func 1st if for loop $i")
+               robot_pose[i] = robot_pose[i]*unit_from_ui_to_zub
+                val temp = robot_pose[i]
+                Log.d(TAG, "robot pose $i : temp")
+            }
+        }
+        else{
+            Log.d(TAG, "gotarget func 1st else in")
+            robot_pose = des_pose
+        }
+
+        for(i in robot_pose.indices) {
+            Log.d(TAG, "gotarget func 1st for loop $i")
+            setvalue(idx_rb_pose+i, robot_pose[i].toInt())
+        }
+
+        if(demomode == true){
+            Log.d(TAG, "gotarget func 2nd if in")
+            if(true) {//q_status.contentEquals(comparearr)
+                Log.d(TAG, "gotarget func 2-1 if in")
+                setvalue(idx_cartesian_control, 1)
+                n_pose = n_pose + 1
+
+                if (n_pose == total_poses) {
+                    Log.d(TAG, "gotarget func 2-1-1 if in")
+                    n_pose = 0
+                }
+            }
+        }
+        else{
+            Log.d(TAG, "gotarget func 2nd else in")
+            setvalue(idx_cartesian_control,1)
         }
     }
 
@@ -788,7 +962,6 @@ class MainActivity : AppCompatActivity() {
         instream.read(recvdata,0,13)
         sendflag = false
     }
-
     private fun getvalue(subindex : Int) : Unit{
         val index = 0x2201
         val msg1 = byteArrayOf(0x05.toByte(), 0x0B.toByte(), 0x00, 23,
@@ -810,6 +983,8 @@ class MainActivity : AppCompatActivity() {
         // 줄단위 저장
         val linetmp = rawfiledata.toString().split("\n".toRegex())
 
+        total_poses = linetmp.size
+
         // 데이터를 저장할 2차원 배열 
         val cutdata = Array(linetmp.size) { Array(6) {0.0} }
         Log.d(TAG, "linetmp : $linetmp")
@@ -820,6 +995,15 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "arrtmp : $arrtmp")
             for (j in 0..5) {
                 cutdata[i][j] = arrtmp[j].toDouble()
+            }
+        }
+
+        robot_poses = cutdata
+
+        for(l in robot_poses.indices){
+            for(m in 0..5){
+                val temp = robot_poses[l][m]
+                Log.d(TAG, "robot_poses[$l][$m] : $temp")
             }
         }
 //        go_sample_pose(cutdata)
@@ -866,6 +1050,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
     ////util
     private fun matmltply(a :Array<Array<Double>>, b : Array<Array<Double>>) : Array<Array<Double>> {
         var result: Array<Array<Double>> =arrayOf(arrayOf(0.0,0.0,0.0,0.0),
