@@ -15,6 +15,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.example.ui_v01.databinding.ActivityMainBinding
 import kotlinx.coroutines.delay
 import java.io.DataInputStream
@@ -132,6 +133,7 @@ class MainActivity : AppCompatActivity() {
     private var time2count = 0
     private var testflag = false
 
+    // File reader
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -139,7 +141,8 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 val samplepose = data?.getStringExtra("samplepose")
                 rawfiledata = samplepose
-                Toast.makeText(applicationContext, "sample pose : \n $samplepose", Toast.LENGTH_LONG).show()
+//                Toast.makeText(applicationContext, "sample pose : \n $samplepose", Toast.LENGTH_LONG).show()
+//                Toast.makeText(applicationContext, "File loading OK!", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -147,7 +150,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_item)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
@@ -172,6 +174,7 @@ class MainActivity : AppCompatActivity() {
 //                binding.connectbt.text="Connect"
 //            }
 //        }
+
         binding.connectbt.setOnClickListener{
             connectt(0)
         }
@@ -199,7 +202,7 @@ class MainActivity : AppCompatActivity() {
             demomode = true
         }
         binding.stopbtn.setOnClickListener{
-            setvalue(idx_stop,1)
+            setvalue(idx_stop,12)
         }
         binding.homepositionbtn.setOnClickListener{
             homeflag = true
@@ -247,7 +250,6 @@ class MainActivity : AppCompatActivity() {
                 step_q=binding.speedcontorl.progress
             }
         })
-
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -384,7 +386,8 @@ class MainActivity : AppCompatActivity() {
             }
             catch (e1: IOException) {
                 show_text.text = "서버 접속 못함"
-                e1.printStackTrace()
+                //e1.printStackTrace()
+                return@Thread
             }
             try {
                 outstream = DataOutputStream(socket.getOutputStream())
@@ -392,7 +395,7 @@ class MainActivity : AppCompatActivity() {
                 //outstream.writeUTF("안드로이드에서 서버로 연결 요청")
             }
             catch (e: IOException) {
-                e.printStackTrace()
+                return@Thread
                 show_text.text = "버퍼 생성 잘못 됨"
             }
             show_text.text = "Connected"
