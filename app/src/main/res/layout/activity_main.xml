@@ -3,10 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -88,7 +84,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
-                                android:enabled="true"
+                                android:enabled="false"
                                 android:text="Up" />
 
                             <Button
@@ -100,7 +96,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
-                                android:enabled="true"
+                                android:enabled="false"
                                 android:text="Down" />
                         </TableRow>
 
@@ -120,6 +116,7 @@
                     android:background="@drawable/buttonsource"
                     android:text="Package"
                     android:visibility="invisible"
+                    android:enabled="false"
                     tools:ignore="ButtonStyle" />
 
                 <LinearLayout
@@ -173,6 +170,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="Demo" />
 
                             <Button
@@ -184,6 +182,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="..." />
                         </TableRow>
 
@@ -341,6 +340,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="-" />
 
                     <Button
@@ -352,6 +352,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="-" />
 
                     <Button
@@ -363,6 +364,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="-" />
 
                     <Button
@@ -374,6 +376,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="-" />
 
                     <Button
@@ -385,6 +388,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="-" />
 
                     <Button
@@ -396,6 +400,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="-" />
                 </LinearLayout> <!-- -btn -->
                 <LinearLayout
@@ -413,6 +418,7 @@
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
                         android:drawablePadding="10dp"
+                        android:enabled="false"
                         android:text="+" />
 
                     <Button
@@ -424,6 +430,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="+" />
 
                     <Button
@@ -435,6 +442,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="+" />
 
                     <Button
@@ -446,6 +454,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="+" />
 
                     <Button
@@ -457,6 +466,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="+" />
 
                     <Button
@@ -468,6 +478,7 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/buttonsource"
+                        android:enabled="false"
                         android:text="+" />
                 </LinearLayout> <!--+btn -->
                 <LinearLayout
@@ -759,7 +770,8 @@
                     android:max="10"
                     android:min="1"
                     android:progress="5"
-                    android:tooltipText="Speed" />
+                    android:tooltipText="Speed"
+                    android:enabled="false" />
             </LinearLayout>
 
 
@@ -1102,6 +1114,7 @@
                     android:layout_marginBottom="5dp"
                     android:background="@drawable/buttonsource"
                     android:onClick="buttonClick"
+                    android:enabled="false"
                     android:text="Stop" /><!-- stop button -->
 
                 <Button
@@ -1114,6 +1127,7 @@
                     android:layout_marginBottom="5dp"
                     android:background="@drawable/buttonsource"
                     android:onClick="buttonClick"
+                    android:enabled="false"
                     android:text="Home Position" /><!-- home position button -->
 
                 <Button
@@ -1126,6 +1140,7 @@
                     android:layout_marginBottom="5dp"
                     android:background="@drawable/buttonsource"
                     android:visibility="invisible"
+                    android:enabled="false"
                     android:text="Go" /><!-- go button -->
 
             </LinearLayout> <!-- go/stop/home -->
@@ -1179,6 +1194,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="X-" />
 
                             <Button
@@ -1190,6 +1206,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="X+" />
                         </TableRow>
 
@@ -1204,6 +1221,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="Y-" />
 
                             <Button
@@ -1215,6 +1233,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="Y+" />
                         </TableRow>
 
@@ -1229,6 +1248,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="Z-" />
 
                             <Button
@@ -1240,6 +1260,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="Z+" />
 
                         </TableRow>
@@ -1287,6 +1308,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="RX -" />
 
                             <Button
@@ -1298,6 +1320,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="RX +" />
                         </TableRow>
 
@@ -1312,6 +1335,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="RY -" />
 
                             <Button
@@ -1323,6 +1347,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="RY +" />
                         </TableRow>
 
@@ -1337,6 +1362,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="RZ -" />
 
                             <Button
@@ -1348,6 +1374,7 @@
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
                                 android:background="@drawable/buttonsource"
+                                android:enabled="false"
                                 android:text="RZ +" />
                         </TableRow>
 

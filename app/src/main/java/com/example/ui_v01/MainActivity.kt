@@ -1,11 +1,11 @@
 package com.example.ui_v01
 
+import BTNenable
 import android.R
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.DeadObjectException
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -15,24 +15,20 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import com.example.ui_v01.databinding.ActivityMainBinding
 import kotlinx.coroutines.delay
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.Socket
-import java.util.Timer
 import kotlin.Boolean
 import kotlin.ByteArray
 import kotlin.DoubleArray
-import kotlin.Exception
 import kotlin.Int
 import kotlin.String
 import kotlin.Unit
 import kotlin.byteArrayOf
 import kotlin.concurrent.fixedRateTimer
-import kotlin.concurrent.schedule
 import kotlin.concurrent.timer
 import kotlin.math.PI
 import kotlin.math.absoluteValue
@@ -74,6 +70,7 @@ class MainActivity : AppCompatActivity() {
 
     private var demomode = true
 
+    private var Isconnected = false
 
     var recvdata = ByteArray(32)
 
@@ -154,29 +151,15 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        var connectstate = false
+        //binding.btnstatus = btndata(true)
 
         ////////status text
         show_text = binding.textstatus
 
-        ////////option
-//        binding.connectbt.setOnClickListener{
-//            if(connectstate == false){
-//                connectt(0)
-//                connectstate=!connectstate
-//                //show_text.text="Connect"
-//                binding.connectbt.text="Disconnect"
-//            }
-//            else{
-//                //socket.close()
-//                connectstate=!connectstate
-//                //show_text.text="Disconnect"
-//                binding.connectbt.text="Connect"
-//            }
-//        }
-
+        ////////
         binding.connectbt.setOnClickListener{
             connectt(0)
+            if(Isconnected) btnablelist(true)
         }
         binding.demo.setOnClickListener{
             gosamplflag = true
@@ -208,7 +191,6 @@ class MainActivity : AppCompatActivity() {
             homeflag = true
         }
 
-
         //seek bar button (joint control +,- button)
         sbctrlbtn(binding.m1,true, 0)
         sbctrlbtn(binding.m2,true, 1)
@@ -239,7 +221,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.speedcontorl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, progress: Int, p2: Boolean) {
-                binding.textbaseval.text="$progress" //문자 내부에 변수 처리
                 show_text.text="Joint Control Speed ${binding.speedcontorl.progress}"
             }
             override fun onStartTrackingTouch(p0: SeekBar?) {
@@ -383,10 +364,13 @@ class MainActivity : AppCompatActivity() {
             try {
                 socket = Socket(newip, port)
                 show_text.text = "서버 접속됨"
+                Isconnected = true
+                runOnUiThread{btnablelist(true)}
             }
             catch (e1: IOException) {
                 show_text.text = "서버 접속 못함"
                 //e1.printStackTrace()
+                Isconnected = false
                 return@Thread
             }
             try {
@@ -395,15 +379,15 @@ class MainActivity : AppCompatActivity() {
                 //outstream.writeUTF("안드로이드에서 서버로 연결 요청")
             }
             catch (e: IOException) {
-                return@Thread
                 show_text.text = "버퍼 생성 잘못 됨"
+                Isconnected = false
+                return@Thread
             }
             show_text.text = "Connected"
-
             try {
                 while (true) {
-
                     get_joint_value() //add timer
+                    //btnable()
 
                     //////////////////////////////
                     if (upjointflag == true){
@@ -423,7 +407,6 @@ class MainActivity : AppCompatActivity() {
                             up_pose(pressedid)
                             upposeflag = false
                         }
-
                         if (downposeflag == true){
                             Log.d(TAG, "poseflag true / prss id : $pressedid")
                             //down_pose(pressedid)
@@ -472,9 +455,11 @@ class MainActivity : AppCompatActivity() {
             }
             catch (e: NullPointerException ) {
                 show_text.text="connection error!"
+                return@Thread
             }
             catch (e: IOException){
                 show_text.text="connection error!"
+                return@Thread
             }
         }
         checkUpdate.start()
@@ -783,7 +768,6 @@ class MainActivity : AppCompatActivity() {
         //'Go home(Subindex:' + str(self.idx_go_home) + ', Value:' + str(value) + ')'
     }
 
-
     private fun up_stage() {
         val value = 1
         setvalue(idx_direction_stage, value)
@@ -952,23 +936,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     ////util
-    private fun matmltply(a :Array<Array<Double>>, b : Array<Array<Double>>) : Array<Array<Double>> {
-        var result: Array<Array<Double>> =arrayOf(arrayOf(0.0,0.0,0.0,0.0),
-            arrayOf(0.0,0.0,0.0,0.0),
-            arrayOf(0.0,0.0,0.0,0.0),
-            arrayOf(0.0,0.0,0.0,0.0))
-
-        return result
-    }
-    private fun matmltply2(a :Array<Array<Double>>, b : Array<Double>) : Array<Array<Double>> {
-        var result: Array<Array<Double>> =arrayOf(arrayOf(0.0,0.0,0.0,0.0),
-            arrayOf(0.0,0.0,0.0,0.0),
-            arrayOf(0.0,0.0,0.0,0.0),
-            arrayOf(0.0,0.0,0.0,0.0))
-
-        return result
-    }
-
     private fun dotprod(a : Array<Array<Double>>, b : Array<Array<Double>>): Array<Array<Double>> {
         val result = Array(4) { Array(4) { 0.0 } }
 
@@ -1019,20 +986,85 @@ class MainActivity : AppCompatActivity() {
         show_text.text=rawdt
     }
 
-    private fun timertest(){
-        fixedRateTimer(period = 1000, initialDelay = 100){
-//            time2count += 1
-//            timecount += time2count/10
-//            time2count = time2count%10
-//
-//            timetext.text = "$timecount"
-//            time2text.text = "$time2count"
-//
-//            if (timestopflag==1)
-//                cancel()
+    fun btnable(){
+        val btnid: List<String> = listOf<String>(
+            "lsup",
+            "lsdown",
+            "packagebt",
+            "connectbt",
+            "demo",
+            "file",
+            "m1","m2","m3","m4","m5","m6",
+            "p1","p2","p3","p4","p5","p6",
+            "speedcontorl",
+            "stopbtn",
+            "homepositionbtn",
+            "gobtn",
+            "xm","xp",
+            "ym","yp",
+            "zm","zp",
+            "rxm","rxp",
+            "rym","ryp",
+            "rzm","rzp"
+        )
+        show_text.text="btnable in"
+
+        for (buttonId in btnid) {
+            show_text.text = "btnable in 1"
+            try {
+                val field = binding::class.java.getDeclaredField(buttonId)
+                show_text.text = "btnable in 2"
+                field.isAccessible = true
+                show_text.text = "btnable in 3"
+                val button = field.get(binding) as Button
+                show_text.text = "btnable in 4"
+                button.isEnabled = true
+                show_text.text = "btnable in 5"
+            } catch (e: NoSuchFieldException) {
+                // 만약 NoSuchFieldException이 발생하면 로그에 출력
+                Log.e("btnable", "Field not found for buttonId: $buttonId", e)
+            } catch (e: IllegalAccessException) {
+                // 만약 IllegalAccessException이 발생하면 로그에 출력
+                Log.e("btnable", "Field cannot be accessed for buttonId: $buttonId", e)
+            }
         }
-        timestopflag = 0
+    }
+
+    private fun btnablelist(state : Boolean){
+        show_text.text = "btnable list in"
+        binding.lsup.isEnabled = state
+        binding.lsdown.isEnabled = state
+        binding.packagebt.isEnabled = state
+        binding.connectbt.isEnabled = state
+        binding.demo.isEnabled = state
+        binding.file.isEnabled = state
+        binding.m1.isEnabled = state
+        binding.m2.isEnabled = state
+        binding.m3.isEnabled = state
+        binding.m4.isEnabled = state
+        binding.m5.isEnabled = state
+        binding.m6.isEnabled = state
+        binding.p1.isEnabled = state
+        binding.p2.isEnabled = state
+        binding.p3.isEnabled = state
+        binding.p4.isEnabled = state
+        binding.p5.isEnabled = state
+        binding.p6.isEnabled = state
+        binding.speedcontorl.isEnabled = state
+//        binding.stopbtn.isEnabled = state
+        binding.homepositionbtn.isEnabled = state
+        binding.gobtn.isEnabled = state
+        binding.xm.isEnabled = state
+        binding.xp.isEnabled = state
+        binding.ym.isEnabled = state
+        binding.yp.isEnabled = state
+        binding.zm.isEnabled = state
+        binding.zp.isEnabled = state
+        binding.rxm.isEnabled = state
+        binding.rxp.isEnabled = state
+        binding.rym.isEnabled = state
+        binding.ryp.isEnabled = state
+        binding.rzm.isEnabled = state
+        binding.rzp.isEnabled = state
     }
 }
-
-
