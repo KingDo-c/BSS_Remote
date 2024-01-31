@@ -65,6 +65,8 @@ class MainActivity : AppCompatActivity() {
     private var gosamplflag = false
     private var stopbtnflag = false
 
+    private var connectionflag = false
+
     private var poseflag = false
     private var upposeflag = false
     private var downposeflag = false
@@ -155,6 +157,7 @@ class MainActivity : AppCompatActivity() {
 
         ////////
         binding.connectbt.setOnClickListener{
+//            connectionflag = !connectionflag
             connectt(0)
         }
         binding.demo.setOnClickListener{
@@ -372,38 +375,58 @@ class MainActivity : AppCompatActivity() {
         show_text.text = "연결하는중"
 
         val checkUpdate = Thread {
-            // Access server
+//             Access server
+            if(connectionflag){
+                connectionflag = false
+                show_text.text = "Diconnected..!"
+                runOnUiThread{btnablelist(false)}
+                runOnUiThread{binding.connectbt.isChecked=false}
+                socket.close()
+                return@Thread
+            }
+            else{
+                connectionflag=!connectionflag
+            }
+
             try {
                 socket = Socket(newip, port)
                 show_text.text = "서버 접속됨"
             }
             catch (e1: IOException) {
                 show_text.text = "서버 접속 못함"
+                connectionflag = false
                 //e1.printStackTrace()
                 runOnUiThread{btnablelist(false)}
+                runOnUiThread{binding.connectbt.isChecked=false}
                 return@Thread
             }
             try {
                 outstream = DataOutputStream(socket.getOutputStream())
                 instream = DataInputStream(socket.getInputStream())
                 //outstream.writeUTF("안드로이드에서 서버로 연결 요청")
+                show_text.text = "Connected..!"
             }
             catch (e: IOException) {
                 show_text.text = "버퍼 생성 잘못 됨"
+                connectionflag = false
                 runOnUiThread{btnablelist(false)}
+                runOnUiThread{binding.connectbt.isChecked=false}
+                socket.close()
                 return@Thread
             }
-            show_text.text = "Connected"
             try {
                 runOnUiThread{btnablelist(true)}
                 while (true) {
                     get_joint_value() //add timer
                     //btnable()
                     //////////////////////////////
+
                     if (stopbtnflag == true){
                         setvalue(idx_stop,1)
 //                        show_text.text="--STOP--"
-                        stopbtnflag == false
+                        while(stopbtnflag==true){
+                            //Log.d(TAG, "Stop button activated!!")
+                        }
                     }
 
                     //////////////////////////////
@@ -426,35 +449,35 @@ class MainActivity : AppCompatActivity() {
                         gosamplflag = false
                     }
 
-                    if(rawfiledata != null){
-                        if (upposeflag == true){
-                            Log.d(TAG, "poseflag true / prss id : $pressedid")
-                            up_pose(pressedid)
-                            upposeflag = false
-                        }
-                        if (downposeflag == true){
-                            Log.d(TAG, "poseflag true / prss id : $pressedid")
-                            //down_pose(pressedid)
-                            downposeflag = false
-                        }
-                    }
-                    else if(upposeflag || downposeflag){
-                        show_text.text = "no sample pose data"
-                        upposeflag = false
-                        downposeflag = false
-                    }
-
-                    if (lsupflag == true){
-                        up_stage()
-                    }
-
-                    if (lsdwnflag == true){
-                        down_stage()
-                    }
-
-                    if (lsstpflag == true){
-                        stop_stage()
-                    }
+//                    if(rawfiledata != null){
+//                        if (upposeflag == true){
+//                            Log.d(TAG, "poseflag true / prss id : $pressedid")
+//                            up_pose(pressedid)
+//                            upposeflag = false
+//                        }
+//                        if (downposeflag == true){
+//                            Log.d(TAG, "poseflag true / prss id : $pressedid")
+//                            //down_pose(pressedid)
+//                            downposeflag = false
+//                        }
+//                    }
+//                    else if(upposeflag || downposeflag){
+//                        show_text.text = "no sample pose data"
+//                        upposeflag = false
+//                        downposeflag = false
+//                    }
+//
+//                    if (lsupflag == true){
+//                        up_stage()
+//                    }
+//
+//                    if (lsdwnflag == true){
+//                        down_stage()
+//                    }
+//
+//                    if (lsstpflag == true){
+//                        stop_stage()
+//                    }
 
                     if (homeflag == true){
                         Log.d(TAG, "go home / flag : $homeflag")
@@ -471,13 +494,19 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             catch (e: NullPointerException ) {
+                connectionflag = false
                 show_text.text="connection error!"
                 runOnUiThread{btnablelist(false)}
+                runOnUiThread{binding.connectbt.isChecked=false}
+                socket.close()
                 return@Thread
             }
             catch (e: IOException){
-                show_text.text="connection error!"
+                connectionflag = false
+                show_text.text="Diconnected..!"
                 runOnUiThread{btnablelist(false)}
+                runOnUiThread{binding.connectbt.isChecked=false}
+                socket.close()
                 return@Thread
             }
         }
@@ -910,35 +939,21 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "robot_poses[$l][$m] : $temp")
             }
         }
-//        go_sample_pose(cutdata)
-        //save check
-//        for(k in 0..1){
-//            for(l in 0..5) {
-//                val cutele = cutdata[k][l]
-//                Log.d(TAG, "cutele$k$l : $cutele")
-//            }
-//        }
-
-//        for (i in cutdata.indices) {
-//            //fixedRateTimer(period = interval_go_signal, initialDelay = 0) {
-//                //go_target()
-//            set_q_value(cutdata[i].toDoubleArray())
-//                Timer().schedule(1000) {
-//                    Log.d(TAG, "Wait for next pose...")
-//                }
-//        }
 
         var k = 0
         timer(period = 3000, initialDelay = 100){
             set_q_value(cutdata[k].toDoubleArray())
-
-            Log.d(TAG, "k : $k")
-            if (k == cutdata.size-1){
-                cancel()
-                Log.d(TAG, "iter- out")
+            if(!stopbtnflag) {
+                Log.d(TAG, "k : $k")
+                if (k == cutdata.size - 1) {
+                    cancel()
+                    show_text.text = " Sample pose work done! "
+                    Log.d(TAG, "iter- out")
+                }
+                Log.d(TAG, "Wait for next pose...")
+                show_text.text = " Sample ${k + 1}/ $total_poses is now working! "
+                k++
             }
-            Log.d(TAG, "Wait for next pose...")
-            k++
         }
     }
 
