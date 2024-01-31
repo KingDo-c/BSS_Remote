@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -14,6 +15,7 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 import java.io.FileFilter
@@ -35,8 +37,16 @@ class Fileexplr : AppCompatActivity() {
         private val permission = arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
+        private val permission1 = arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+        @RequiresApi(Build.VERSION_CODES.R)
+        private val permission2 = arrayOf(
+            Manifest.permission.MANAGE_EXTERNAL_STORAGE
+        )
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fileexplr)
@@ -63,6 +73,7 @@ class Fileexplr : AppCompatActivity() {
         checkPermission()
 
         findViewById<Button>(R.id.rtnbtn).setOnClickListener {
+            Toast.makeText(applicationContext, "Go root", Toast.LENGTH_LONG).show()
             finish()
         }
 
@@ -89,7 +100,7 @@ class Fileexplr : AppCompatActivity() {
                 refreshFiles() //리프레쉬
             }
             else if(f.name.endsWith(".txt")){ //txt 파일이면 처리
-                //Toast.makeText(this@Fileexplr, arFiles!![position], Toast.LENGTH_LONG).show()
+                Toast.makeText(this@Fileexplr, "File  ' ${arFiles!![position]} ' selected!! " , Toast.LENGTH_LONG).show()
                 readtxt(mCurrent,arFiles!![position])
             }
             else{ //txt 파일 아니면 알림
@@ -112,6 +123,7 @@ class Fileexplr : AppCompatActivity() {
         Log.d(TAG, "sample pose : $res")
         finish()
     }
+
     fun listFilesInDirectory(pathString: String?) {
         // A local class (a class defined inside a block, here a method).
         class MyFilter : FileFilter {
@@ -172,23 +184,38 @@ class Fileexplr : AppCompatActivity() {
         mAdapter!!.notifyDataSetChanged()
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     fun checkPermission() {
+        //Toast.makeText(applicationContext, "Check Permission..", Toast.LENGTH_LONG).show()
         // 접근권한이 없을때(저장공간)
-        if (PackageManager.PERMISSION_GRANTED != checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if ((PackageManager.PERMISSION_GRANTED != checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE))||
+            (PackageManager.PERMISSION_GRANTED != checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE))||
+            (PackageManager.PERMISSION_GRANTED != checkSelfPermission(Manifest.permission.MANAGE_EXTERNAL_STORAGE))){
+            //Toast.makeText(applicationContext, "No permissions..", Toast.LENGTH_LONG).show()
 
             // 최초 권한 요청인지, 혹은 사용자에 의한 재요청인지 확인
-            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            if ((shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE))||
+                (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE))||
+                (shouldShowRequestPermissionRationale(Manifest.permission.MANAGE_EXTERNAL_STORAGE))){
 
                 // 사용자가 임의로 권한을 취소한 경우
                 // 권한 재요청
+                //Toast.makeText(applicationContext, "Permission required..", Toast.LENGTH_LONG).show()
                 Log.i(TAG, "권한 재요청")
                 requestPermissions(permission, MY_PERMISSIONS_REQUEST_READ_CONTACTS)
+                requestPermissions(permission1, MY_PERMISSIONS_REQUEST_READ_CONTACTS)
+                requestPermissions(permission2, MY_PERMISSIONS_REQUEST_READ_CONTACTS)
+
             } else {
                 // 최초로 권한을 요청하는 경우(첫실행)
+                //Toast.makeText(applicationContext, "Initial setting..", Toast.LENGTH_LONG).show()
                 Log.i(TAG, "권한 최초요청")
                 requestPermissions(permission, MY_PERMISSIONS_REQUEST_READ_CONTACTS)
+                requestPermissions(permission1, MY_PERMISSIONS_REQUEST_READ_CONTACTS)
+                requestPermissions(permission2, MY_PERMISSIONS_REQUEST_READ_CONTACTS)
             }
         } else { // 접근권한이 있을때
+            //Toast.makeText(applicationContext, "Permission checked..", Toast.LENGTH_LONG).show()
             Log.i(TAG, "접근 허용")
         }
     }
