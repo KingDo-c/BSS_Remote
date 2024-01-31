@@ -63,14 +63,13 @@ class MainActivity : AppCompatActivity() {
     private var homeflag = false
     private var packageflag = false
     private var gosamplflag = false
+    private var stopbtnflag = false
 
     private var poseflag = false
     private var upposeflag = false
     private var downposeflag = false
 
     private var demomode = true
-
-    private var Isconnected = false
 
     var recvdata = ByteArray(32)
 
@@ -151,15 +150,12 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        //binding.btnstatus = btndata(true)
-
         ////////status text
         show_text = binding.textstatus
 
         ////////
         binding.connectbt.setOnClickListener{
             connectt(0)
-            if(Isconnected) btnablelist(true)
         }
         binding.demo.setOnClickListener{
             gosamplflag = true
@@ -184,9 +180,24 @@ class MainActivity : AppCompatActivity() {
         binding.gobtn.setOnClickListener{
             demomode = true
         }
-        binding.stopbtn.setOnClickListener{
-            setvalue(idx_stop,12)
+
+//        binding.stopbtn.setOnClickListener{
+//            stopbtnflag = true
+//        }
+        var isToggled = false
+        binding.stopbtn.setOnClickListener {
+            // Toggle the state
+            isToggled = !isToggled
+            // Handle the toggle state
+            if (isToggled) {
+                stopbtnflag = true
+                show_text.text="--STOP--"
+            } else {
+                stopbtnflag = false
+                show_text.text="--READY--"
+            }
         }
+
         binding.homepositionbtn.setOnClickListener{
             homeflag = true
         }
@@ -219,6 +230,7 @@ class MainActivity : AppCompatActivity() {
 //        posectrlbtn(binding.ryp,false, 4)
 //        posectrlbtn(binding.rzp,false, 5)
 
+        binding.speedcontorl.isEnabled = false
         binding.speedcontorl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, progress: Int, p2: Boolean) {
                 show_text.text="Joint Control Speed ${binding.speedcontorl.progress}"
@@ -364,13 +376,11 @@ class MainActivity : AppCompatActivity() {
             try {
                 socket = Socket(newip, port)
                 show_text.text = "서버 접속됨"
-                Isconnected = true
-                runOnUiThread{btnablelist(true)}
             }
             catch (e1: IOException) {
                 show_text.text = "서버 접속 못함"
                 //e1.printStackTrace()
-                Isconnected = false
+                runOnUiThread{btnablelist(false)}
                 return@Thread
             }
             try {
@@ -380,14 +390,21 @@ class MainActivity : AppCompatActivity() {
             }
             catch (e: IOException) {
                 show_text.text = "버퍼 생성 잘못 됨"
-                Isconnected = false
+                runOnUiThread{btnablelist(false)}
                 return@Thread
             }
             show_text.text = "Connected"
             try {
+                runOnUiThread{btnablelist(true)}
                 while (true) {
                     get_joint_value() //add timer
                     //btnable()
+                    //////////////////////////////
+                    if (stopbtnflag == true){
+                        setvalue(idx_stop,1)
+//                        show_text.text="--STOP--"
+                        stopbtnflag == false
+                    }
 
                     //////////////////////////////
                     if (upjointflag == true){
@@ -399,6 +416,14 @@ class MainActivity : AppCompatActivity() {
                         Log.d(TAG, "jointflag true / prss id : $pressedid")
                         down_joint(pressedid)
                         //downjointflag = false
+                    }
+                    if (gosamplflag == true){
+                        Log.d(TAG, "go samplflag / flag : $gosamplflag")
+                        //show_text.text = "$rawfiledata"
+                        load_file(rawfiledata)
+                        //go_sample_pose()
+                        show_text.text="Demo pos"
+                        gosamplflag = false
                     }
 
                     if(rawfiledata != null){
@@ -431,14 +456,6 @@ class MainActivity : AppCompatActivity() {
                         stop_stage()
                     }
 
-                    if (gosamplflag == true){
-                        Log.d(TAG, "go samplflag / flag : $gosamplflag")
-                        //show_text.text = "$rawfiledata"
-                        load_file(rawfiledata)
-                        //go_sample_pose()
-                        show_text.text="Demo pos"
-                        gosamplflag = false
-                    }
                     if (homeflag == true){
                         Log.d(TAG, "go home / flag : $homeflag")
                         go_home()
@@ -455,10 +472,12 @@ class MainActivity : AppCompatActivity() {
             }
             catch (e: NullPointerException ) {
                 show_text.text="connection error!"
+                runOnUiThread{btnablelist(false)}
                 return@Thread
             }
             catch (e: IOException){
                 show_text.text="connection error!"
+                runOnUiThread{btnablelist(false)}
                 return@Thread
             }
         }
@@ -877,6 +896,7 @@ class MainActivity : AppCompatActivity() {
             //줄 별로 요소 저장
             val arrtmp = linetmp[i].split("\\s+".toRegex())
             Log.d(TAG, "arrtmp : $arrtmp")
+            show_text.text="${arrtmp.size} sample poses"
             for (j in 0..5) {
                 cutdata[i][j] = arrtmp[j].toDouble()
             }
@@ -1031,11 +1051,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun btnablelist(state : Boolean){
-        show_text.text = "btnable list in"
+        //show_text.text = "btnable list in"
         binding.lsup.isEnabled = state
         binding.lsdown.isEnabled = state
         binding.packagebt.isEnabled = state
-        binding.connectbt.isEnabled = state
+        //binding.connectbt.isEnabled = state
         binding.demo.isEnabled = state
         binding.file.isEnabled = state
         binding.m1.isEnabled = state
@@ -1051,7 +1071,7 @@ class MainActivity : AppCompatActivity() {
         binding.p5.isEnabled = state
         binding.p6.isEnabled = state
         binding.speedcontorl.isEnabled = state
-//        binding.stopbtn.isEnabled = state
+        binding.stopbtn.isEnabled = state
         binding.homepositionbtn.isEnabled = state
         binding.gobtn.isEnabled = state
         binding.xm.isEnabled = state

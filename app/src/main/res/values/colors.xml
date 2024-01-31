@@ -3,5 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="buttoncolor">#8A4F9CC5</color> <!--FCC000 : orange-->
-    <color name="buttoncolor2">#8A0030C1</color> <!--FCC000 : orange-->
+    <color name="buttonwarn">#FF5252</color> <!--FCC000 : orange-->
+    <color name="buttonsafe">#2FE14D</color>
 </resources>
