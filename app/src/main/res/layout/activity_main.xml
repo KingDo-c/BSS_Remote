@@ -757,7 +757,7 @@
                     android:layout_height="50dp"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
-                    android:text="Speed"
+                    android:text="Step"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="#000000"
                     android:textSize="14sp"
