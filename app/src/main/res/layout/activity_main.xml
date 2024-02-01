@@ -1116,9 +1116,9 @@
                     android:layout_marginBottom="5dp"
                     android:background="@drawable/btnonoff"
                     android:enabled="false"
-                    android:text="Stop"
-                    android:textOff="Stop"
-                    android:textOn="Stop" /><!-- stop button -->
+                    android:text="Play"
+                    android:textOff="Pause"
+                    android:textOn="Play" /><!-- stop button -->
 
                 <Button
                     android:id="@+id/homepositionbtn"
