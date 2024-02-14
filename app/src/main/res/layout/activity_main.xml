@@ -1106,6 +1106,18 @@
 
                 android:orientation="horizontal">
 
+                <Button
+                    android:id="@+id/demorstbtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/buttonsource"
+                    android:enabled="false"
+                    android:text="Reset" /><!-- go button -->
+
                 <ToggleButton
                     android:id="@+id/stopbtn"
                     android:layout_width="match_parent"

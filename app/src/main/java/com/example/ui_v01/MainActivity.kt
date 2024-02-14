@@ -71,6 +71,8 @@ class MainActivity : AppCompatActivity() {
     private var upposeflag = false
     private var downposeflag = false
 
+    private var demorst = false
+
     private var demomode = true
 
     var recvdata = ByteArray(32)
@@ -184,6 +186,7 @@ class MainActivity : AppCompatActivity() {
             demomode = true
         }
 
+
 //        binding.stopbtn.setOnClickListener{
 //            stopbtnflag = true
 //        }
@@ -195,9 +198,25 @@ class MainActivity : AppCompatActivity() {
             if (isToggled) {
                 stopbtnflag = true
                 show_text.text="--STOP--"
+                binding.demorstbtn.isEnabled = true
             } else {
                 stopbtnflag = false
                 show_text.text="--READY--"
+                binding.demorstbtn.isEnabled = false
+            }
+        }
+
+        binding.demorstbtn.setOnClickListener {
+            if(isToggled) {
+                show_text.text = "--Demo Reset & Home Pos--"
+                rawfiledata = null
+                binding.demorstbtn.isEnabled = false
+                demorst = true
+
+                binding.stopbtn.isChecked=false
+                stopbtnflag = false
+
+                homeflag = true
             }
         }
 
@@ -381,7 +400,7 @@ class MainActivity : AppCompatActivity() {
                 show_text.text = "Diconnected..!"
                 runOnUiThread{btnablelist(false)}
                 runOnUiThread{binding.connectbt.isChecked=false}
-                socket.close()
+                //socket.close()
                 return@Thread
             }
             else{
@@ -467,17 +486,17 @@ class MainActivity : AppCompatActivity() {
 //                        downposeflag = false
 //                    }
 //
-//                    if (lsupflag == true){
-//                        up_stage()
-//                    }
-//
-//                    if (lsdwnflag == true){
-//                        down_stage()
-//                    }
-//
-//                    if (lsstpflag == true){
-//                        stop_stage()
-//                    }
+                    if (lsupflag == true){
+                        up_stage()
+                    }
+
+                    if (lsdwnflag == true){
+                        down_stage()
+                    }
+
+                    if (lsstpflag == true){
+                        stop_stage()
+                    }
 
                     if (homeflag == true){
                         Log.d(TAG, "go home / flag : $homeflag")
@@ -943,7 +962,11 @@ class MainActivity : AppCompatActivity() {
         var k = 0
         timer(period = 3000, initialDelay = 100){
             set_q_value(cutdata[k].toDoubleArray())
-            if(!stopbtnflag) {
+            if(demorst || stopbtnflag){
+                demorst = !demorst
+                cancel()
+            }
+            else {
                 Log.d(TAG, "k : $k")
                 if (k == cutdata.size - 1) {
                     cancel()
@@ -954,6 +977,7 @@ class MainActivity : AppCompatActivity() {
                 show_text.text = " Sample ${k + 1}/ $total_poses is now working! "
                 k++
             }
+
         }
     }
 
@@ -1101,5 +1125,6 @@ class MainActivity : AppCompatActivity() {
         binding.ryp.isEnabled = state
         binding.rzm.isEnabled = state
         binding.rzp.isEnabled = state
+//        binding.demorstbtn.isEnabled = state
     }
 }
