@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     val sampling_time : Long = 10 // milliseconds
 
     val unit_from_ui_to_zub = 1000.0
-    val curq = DoubleArray(6)
+    var curq = DoubleArray(6)
     var des_pose = DoubleArray(6)
     var q_status = IntArray(6)
 
@@ -397,6 +397,7 @@ class MainActivity : AppCompatActivity() {
 //             Access server
             if(connectionflag){
                 connectionflag = false
+                Log.d(TAG,"disconnected..")
                 show_text.text = "Diconnected..!"
                 runOnUiThread{btnablelist(false)}
                 runOnUiThread{binding.connectbt.isChecked=false}
@@ -409,12 +410,17 @@ class MainActivity : AppCompatActivity() {
 
             try {
                 socket = Socket(newip, port)
+                resetval()
                 show_text.text = "서버 접속됨"
             }
             catch (e1: IOException) {
                 show_text.text = "서버 접속 못함"
                 connectionflag = false
                 //e1.printStackTrace()
+                Log.d(TAG,"rst catch1")
+                resetval()
+                showjoint()
+
                 runOnUiThread{btnablelist(false)}
                 runOnUiThread{binding.connectbt.isChecked=false}
                 return@Thread
@@ -422,6 +428,9 @@ class MainActivity : AppCompatActivity() {
             try {
                 outstream = DataOutputStream(socket.getOutputStream())
                 instream = DataInputStream(socket.getInputStream())
+                Log.d(TAG,"rst try1")
+                resetval()
+                showjoint()
                 //outstream.writeUTF("안드로이드에서 서버로 연결 요청")
                 show_text.text = "Connected..!"
             }
@@ -430,12 +439,18 @@ class MainActivity : AppCompatActivity() {
                 connectionflag = false
                 runOnUiThread{btnablelist(false)}
                 runOnUiThread{binding.connectbt.isChecked=false}
+                ///////////////////
+                Log.d(TAG,"rst catch2")
+                resetval()
+                showjoint()
                 socket.close()
                 return@Thread
             }
             try {
                 runOnUiThread{btnablelist(true)}
                 while (true) {
+//                    resetval()
+                    if(!connectionflag) break  // *******imprt
                     get_joint_value() //add timer
                     //btnable()
                     //////////////////////////////
@@ -517,6 +532,11 @@ class MainActivity : AppCompatActivity() {
                 show_text.text="connection error!"
                 runOnUiThread{btnablelist(false)}
                 runOnUiThread{binding.connectbt.isChecked=false}
+                ///////////////////
+                Log.d(TAG,"rst catch3")
+                resetval()
+                showjoint()
+
                 socket.close()
                 return@Thread
             }
@@ -525,6 +545,11 @@ class MainActivity : AppCompatActivity() {
                 show_text.text="Diconnected..!"
                 runOnUiThread{btnablelist(false)}
                 runOnUiThread{binding.connectbt.isChecked=false}
+                ///////////////////
+                Log.d(TAG,"rst catch4")
+                resetval()
+                showjoint()
+
                 socket.close()
                 return@Thread
             }
@@ -535,6 +560,8 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun get_joint_value(){
         //Log.d(TAG, "get joint value func in.")
+
+
         for(i in 0..5) {
             getvalue(idx_cur_joint+i)//idx_cur_joint + i
             //showrecvdata()
@@ -544,14 +571,15 @@ class MainActivity : AppCompatActivity() {
             val rcv10 = recvdata[10]
             val rcv11 = recvdata[11]
 
-            val curqfromzub = (-1 * (byteToInt(rcv11) shr 0x07) shl 31) +
-                                (((byteToInt(rcv11) and 0x7F) shl 24) or
-                                (byteToInt(rcv10) shl 16) or
-                                (byteToInt(rcv9) shl 8) or
-                                byteToInt(rcv8))
+//            val curqfromzub = (-1 * (byteToInt(rcv11) shr 0x07) shl 31) +
+//                                (((byteToInt(rcv11) and 0x7F) shl 24) or
+//                                (byteToInt(rcv10) shl 16) or
+//                                (byteToInt(rcv9) shl 8) or
+//                                byteToInt(rcv8))
+//
+//            curq[i] = (curqfromzub / unit_from_ui_to_zub)
 
-            curq[i] = (curqfromzub / unit_from_ui_to_zub)
-
+           recvtocurq(i, rcv8, rcv9, rcv10, rcv11)
         }
 
         val curq1 = curq[0]
@@ -561,6 +589,8 @@ class MainActivity : AppCompatActivity() {
         val curq5 = curq[4]
         val curq6 = curq[5]
 
+
+//        showjoint()
         binding.textbaseval.text = "$curq1"
         binding.textsholderval.text = "$curq2"
         binding.textdepthval.text = "$curq3"
@@ -574,6 +604,33 @@ class MainActivity : AppCompatActivity() {
         T0E = fktms(q)
         //Log.d(TAG, "fktms(q) done")
         calcT0E(T0E)
+    }
+
+    private fun resetval(){
+        Log.d(TAG, "resetval joint ")
+        curq = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        recvdata =  ByteArray(32){0}
+        Log.d(TAG, "rst curq ${curq[0]} / ${curq[1]} / ${curq[2]} / ${curq[3]} / ${curq[4]} / ${curq[5]}")
+        for(i in 0 .. 31)
+            Log.d(TAG, "${recvdata[i]}")
+        showjoint()
+    }
+    private fun showjoint(){
+        binding.textbaseval.text = "${curq[0]}"
+        binding.textsholderval.text = "${curq[1]}"
+        binding.textdepthval.text = "${curq[2]}"
+        binding.textwrist1val.text = "${curq[3]}"
+        binding.textwrist2val.text = "${curq[4]}"
+        binding.textwrist3val.text = "${curq[5]}"
+    }
+    private fun recvtocurq (i : Int, rcv8 : Byte, rcv9 : Byte, rcv10 : Byte, rcv11 : Byte){
+        val curqfromzub = (-1 * (byteToInt(rcv11) shr 0x07) shl 31) +
+                (((byteToInt(rcv11) and 0x7F) shl 24) or
+                        (byteToInt(rcv10) shl 16) or
+                        (byteToInt(rcv9) shl 8) or
+                        byteToInt(rcv8))
+
+        curq[i] = (curqfromzub / unit_from_ui_to_zub)
     }
 
     //kine
