@@ -149,16 +149,18 @@
 
                         <TableRow>
 
-                            <Button
+                            <ToggleButton
                                 android:id="@+id/connectbt"
-                                android:layout_width="wrap_content"
+                                android:layout_width="90dp"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="2dp"
                                 android:layout_marginTop="2dp"
                                 android:layout_marginEnd="2dp"
                                 android:layout_marginBottom="2dp"
-                                android:background="@drawable/buttonsource"
+                                android:background="@drawable/btnonoff"
                                 android:text="Connect"
+                                android:textOff="Connect"
+                                android:textOn="DisCnct"
                                 tools:ignore="ButtonStyle" />
 
                             <Button
@@ -755,7 +757,7 @@
                     android:layout_height="50dp"
                     android:fontFamily="sans-serif-condensed-medium"
                     android:gravity="center"
-                    android:text="Speed"
+                    android:text="Step"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="#000000"
                     android:textSize="14sp"
@@ -1104,6 +1106,18 @@
 
                 android:orientation="horizontal">
 
+                <Button
+                    android:id="@+id/demorstbtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/buttonsource"
+                    android:enabled="false"
+                    android:text="Reset" /><!-- go button -->
+
                 <ToggleButton
                     android:id="@+id/stopbtn"
                     android:layout_width="match_parent"
@@ -1114,9 +1128,9 @@
                     android:layout_marginBottom="5dp"
                     android:background="@drawable/btnonoff"
                     android:enabled="false"
-                    android:text="Stop"
-                    android:textOff="Stop"
-                    android:textOn="Stop" /><!-- stop button -->
+                    android:text="Play"
+                    android:textOff="Pause"
+                    android:textOn="Play" /><!-- stop button -->
 
                 <Button
                     android:id="@+id/homepositionbtn"
