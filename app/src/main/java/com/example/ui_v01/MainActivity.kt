@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     // Set IP/Port
     private val newip = "192.168.0.100" // leelab3 // 192.168.0.100 : ZUB , 192.168.0.11 : msi
     private val port = 23
-    private var checkUpdate: Thread? = null
+    private var communicationThread: Thread? = null
 
     // communication var
     private lateinit var show_text: TextView
@@ -394,6 +394,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onToggleConnectButtonClicked(id: Int) {
+        mHandler = Handler(Looper.getMainLooper())
         if(connectionflag)
         {
             requestDisconnection()
@@ -404,7 +405,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        mHandler = Handler(Looper.getMainLooper())
         show_text.text = "연결하는중"
 
         if (checkUpdate != null && checkUpdate!!.isAlive) {
@@ -590,7 +590,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestConnection()
     {
-
+        if(communicationThread)
     }
 
 
