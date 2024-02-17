@@ -29,6 +29,7 @@ import kotlin.String
 import kotlin.Unit
 import kotlin.byteArrayOf
 import kotlin.concurrent.fixedRateTimer
+import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 import kotlin.math.PI
 import kotlin.math.absoluteValue
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     // Set IP/Port
     private val newip = "192.168.0.100" // leelab3 // 192.168.0.100 : ZUB , 192.168.0.11 : msi
     private val port = 23
+    private var checkUpdate: Thread? = null
 
     // communication var
     private lateinit var show_text: TextView
@@ -75,7 +77,8 @@ class MainActivity : AppCompatActivity() {
 
     private var demomode = true
 
-    var recvdata = ByteArray(32)
+    private var bufferSize = 1000
+    var recvdata = ByteArray(bufferSize)
 
     // index val
     val idx_cur_joint = 21
@@ -160,7 +163,7 @@ class MainActivity : AppCompatActivity() {
         ////////
         binding.connectbt.setOnClickListener{
 //            connectionflag = !connectionflag
-            connectt(0)
+            onToggleConnectButtonClicked(0)
         }
         binding.demo.setOnClickListener{
             gosamplflag = true
@@ -177,6 +180,7 @@ class MainActivity : AppCompatActivity() {
         ///////////linear stage
         lsctrlbtn(binding.lsup, true) //true up
         lsctrlbtn(binding.lsdown, false) // false down
+
         binding.packagebt.setOnClickListener {
             packageflag = true
         }
@@ -389,23 +393,40 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
-    private fun connectt(id: Int) {
+    private fun onToggleConnectButtonClicked(id: Int) {
+        if(connectionflag)
+        {
+            requestDisconnection()
+        }
+        else
+        {
+            requestConnection()
+        }
+
+
         mHandler = Handler(Looper.getMainLooper())
         show_text.text = "연결하는중"
 
-        val checkUpdate = Thread {
+        if (checkUpdate != null && checkUpdate!!.isAlive) {
+            Log.d(TAG, "RETURN....")
+            show_text.text = "Diconnected..!"
+            connectionflag = false
+
+            checkUpdate!!.interrupt()
+            checkUpdate = null
+            return
+        }
+
+        checkUpdate = Thread {
 //             Access server
-            if(connectionflag){
+            if(connectionflag){ //이미 연결되어 있을때
                 connectionflag = false
-                Log.d(TAG,"disconnected..")
+//                Log.d(TAG,"disconnected..")
                 show_text.text = "Diconnected..!"
                 runOnUiThread{btnablelist(false)}
                 runOnUiThread{binding.connectbt.isChecked=false}
                 //socket.close()
                 return@Thread
-            }
-            else{
-                connectionflag=!connectionflag
             }
 
             try {
@@ -448,9 +469,11 @@ class MainActivity : AppCompatActivity() {
             }
             try {
                 runOnUiThread{btnablelist(true)}
+                connectionflag = true
                 while (true) {
 //                    resetval()
                     if(!connectionflag) break  // *******imprt
+
                     get_joint_value() //add timer
                     //btnable()
                     //////////////////////////////
@@ -474,6 +497,7 @@ class MainActivity : AppCompatActivity() {
                         down_joint(pressedid)
                         //downjointflag = false
                     }
+
                     if (gosamplflag == true){
                         Log.d(TAG, "go samplflag / flag : $gosamplflag")
                         //show_text.text = "$rawfiledata"
@@ -519,6 +543,7 @@ class MainActivity : AppCompatActivity() {
                         homeflag = false
                         show_text.text="Home pos"
                     }
+
                     if (packageflag == true){
                         Log.d(TAG, "go package / flag : $packageflag")
                         go_package()
@@ -554,49 +579,53 @@ class MainActivity : AppCompatActivity() {
                 return@Thread
             }
         }
-        checkUpdate.start()
+
+        checkUpdate!!.start()
     }
+
+    private fun requestDisconnection()
+    {
+
+    }
+
+    private fun requestConnection()
+    {
+
+    }
+
 
     @SuppressLint("SetTextI18n")
     private fun get_joint_value(){
         //Log.d(TAG, "get joint value func in.")
 
-
         for(i in 0..5) {
             getvalue(idx_cur_joint+i)//idx_cur_joint + i
-            //showrecvdata()
 
+            Log.d(TAG, "curq val ${curq.contentToString()}")
+            Log.d(TAG, "recvdata ${recvdata.contentToString()}")
             val rcv8 = recvdata[8]
             val rcv9 = recvdata[9]
             val rcv10 = recvdata[10]
             val rcv11 = recvdata[11]
 
-//            val curqfromzub = (-1 * (byteToInt(rcv11) shr 0x07) shl 31) +
-//                                (((byteToInt(rcv11) and 0x7F) shl 24) or
-//                                (byteToInt(rcv10) shl 16) or
-//                                (byteToInt(rcv9) shl 8) or
-//                                byteToInt(rcv8))
-//
-//            curq[i] = (curqfromzub / unit_from_ui_to_zub)
+            val curqfromzub = (-1 * (byteToInt(rcv11) shr 0x07) shl 31) +
+                                (((byteToInt(rcv11) and 0x7F) shl 24) or
+                                (byteToInt(rcv10) shl 16) or
+                                (byteToInt(rcv9) shl 8) or
+                                byteToInt(rcv8))
 
-           recvtocurq(i, rcv8, rcv9, rcv10, rcv11)
+            curq[i] = (curqfromzub / unit_from_ui_to_zub)
+
         }
 
-        val curq1 = curq[0]
-        val curq2 = curq[1]
-        val curq3 = curq[2]
-        val curq4 = curq[3]
-        val curq5 = curq[4]
-        val curq6 = curq[5]
 
-
-//        showjoint()
-        binding.textbaseval.text = "$curq1"
-        binding.textsholderval.text = "$curq2"
-        binding.textdepthval.text = "$curq3"
-        binding.textwrist1val.text = "$curq4"
-        binding.textwrist2val.text = "$curq5"
-        binding.textwrist3val.text = "$curq6"
+        showjoint()
+//        binding.textbaseval.text = "$curq1"
+//        binding.textsholderval.text = "$curq2"
+//        binding.textdepthval.text = "$curq3"
+//        binding.textwrist1val.text = "$curq4"
+//        binding.textwrist2val.text = "$curq5"
+//        binding.textwrist3val.text = "$curq6"
         //Log.d(TAG, "read joint value done")
 
         val q = curq.plus(0.0)// + 0.0
@@ -609,10 +638,9 @@ class MainActivity : AppCompatActivity() {
     private fun resetval(){
         Log.d(TAG, "resetval joint ")
         curq = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        recvdata =  ByteArray(32){0}
-        Log.d(TAG, "rst curq ${curq[0]} / ${curq[1]} / ${curq[2]} / ${curq[3]} / ${curq[4]} / ${curq[5]}")
-        for(i in 0 .. 31)
-            Log.d(TAG, "${recvdata[i]}")
+        recvdata =  ByteArray(bufferSize){0}
+        Log.d(TAG, "rst curq ${curq.contentToString()}")
+        Log.d(TAG, "recvdata ${recvdata.contentToString()}")
         showjoint()
     }
     private fun showjoint(){
@@ -622,15 +650,6 @@ class MainActivity : AppCompatActivity() {
         binding.textwrist1val.text = "${curq[3]}"
         binding.textwrist2val.text = "${curq[4]}"
         binding.textwrist3val.text = "${curq[5]}"
-    }
-    private fun recvtocurq (i : Int, rcv8 : Byte, rcv9 : Byte, rcv10 : Byte, rcv11 : Byte){
-        val curqfromzub = (-1 * (byteToInt(rcv11) shr 0x07) shl 31) +
-                (((byteToInt(rcv11) and 0x7F) shl 24) or
-                        (byteToInt(rcv10) shl 16) or
-                        (byteToInt(rcv9) shl 8) or
-                        byteToInt(rcv8))
-
-        curq[i] = (curqfromzub / unit_from_ui_to_zub)
     }
 
     //kine
@@ -967,17 +986,30 @@ class MainActivity : AppCompatActivity() {
             0x22,(index and 0xFF).toByte(), ((index shr 8) and 0xFF).toByte(), subindex.toByte(),
             (value and 0xFF).toByte(), ((value shr 8) and 0xFF).toByte(),((value shr 16) and 0xFF).toByte(), ((value shr 24) and 0xFF).toByte(), 0x03)
         outstream.write(msg)
-        instream.read(recvdata,0,13)
+        instream.read(recvdata,0,bufferSize)
         sendflag = false
     }
     private fun getvalue(subindex : Int) : Unit{
+        // outstream flush
+        outstream.flush()
+        // instream flush
+        var numBytes = instream.available()
+        if (numBytes > 0)
+        {
+             instream.read(recvdata, 0, numBytes)
+        }
+
+        Log.d(TAG, "getvalue in/ sbidx : $subindex")
         val index = 0x2201
         val msg1 = byteArrayOf(0x05.toByte(), 0x0B.toByte(), 0x00, 23,
             0x40,(index and 0xFF).toByte(), ((index shr 8) and 0xFF).toByte(), subindex.toByte(),
             0x00, 0x00,0x00, 0x00, 0x03)
         outstream.write(msg1)
-        instream.read(recvdata,0,13)
-        recvflag = false
+        while (instream.available() >= 13);
+        instream.read(recvdata,0,bufferSize)
+
+        Log.d(TAG, "[${android.os.Process.myTid()}]recvdata ${recvdata.contentToString()} // getvalue end")
+        //recvflag = false
     }
 
 
@@ -1093,13 +1125,6 @@ class MainActivity : AppCompatActivity() {
         val sb = StringBuilder()
         for (b in a) sb.append(String.format("%02x ", b.toInt() and 0xff))
         return sb.toString()
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun showrecvdata(){
-        val rawdt = byteArrayToHex(recvdata)
-
-        show_text.text=rawdt
     }
 
     fun btnable(){
