@@ -216,6 +216,7 @@ class MainActivity : AppCompatActivity() {
             if(isToggled) {
                 show_text.text = "--Demo Reset & Home Pos--"
                 rawfiledata = null
+                binding.demo.isEnabled=true
                 binding.demorstbtn.isEnabled = false
                 binding.stopbtn.isChecked=false
                 isToggled = !isToggled
@@ -229,6 +230,7 @@ class MainActivity : AppCompatActivity() {
         binding.homepositionbtn.setOnClickListener{
             homeflag = true
         }
+
 
         //seek bar button (joint control +,- button)
         sbctrlbtn(binding.m1,true, 0)
@@ -395,7 +397,7 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
-var isrun = false
+    var isrun = false
     private fun onToggleConnectButtonClicked() {
         mHandler = Handler(Looper.getMainLooper())
         isrun = false
@@ -407,6 +409,7 @@ var isrun = false
 
 
         if(TID != 0){
+            Log.d(TAG, "TID missmatch")
             requestDisconnection()
             TID = 0
         }
@@ -463,20 +466,25 @@ var isrun = false
             try {
                 runOnUiThread{btnablelist(true)}
                 connectionflag = true
-
+                Log.d(TAG, "button able..")
                 if(isrun) {
                     Log.d(TAG, "Is run")
                     communicationThread!!.interrupt()
                 }
                 isrun =!isrun
 
+                Log.d(TAG, "thread loop start..")
                 while (!communicationThread!!.isInterrupted()) {
+
                     Thread.sleep(100)
                     Log.d(TAG, "[ Run Thread : ${android.os.Process.myTid()}]")
+
+                    //////////
                     if(TID != (android.os.Process.myTid()) ) {
                         Log.d(TAG, "TID mismatched!!")
                         break
                     }
+
                     if(!connectionflag) break  // *******imprt
 
                     get_joint_value() //add timer
@@ -572,9 +580,13 @@ var isrun = false
 
                 socket.close()
             }
+            catch (e: InterruptedException){
+                Log.d(TAG, " interrupt exc")
+            }
         }
 
         communicationThread!!.start()
+
     }
 
     private fun requestDisconnection()
@@ -1014,7 +1026,7 @@ var isrun = false
             0x40,(index and 0xFF).toByte(), ((index shr 8) and 0xFF).toByte(), subindex.toByte(),
             0x00, 0x00,0x00, 0x00, 0x03)
         outstream.write(msg1)
-        while (instream.available() >= 13);
+        //while (instream.available() >= 13);
         instream.read(recvdata,0,bufferSize)
 
 //        Log.d(TAG, "[${android.os.Process.myTid()}]recvdata ${recvdata.contentToString()} // getvalue end")
@@ -1031,17 +1043,18 @@ var isrun = false
         }
         // 줄단위 저장
         val linetmp = rawfiledata.toString().split("\n".toRegex())
+        runOnUiThread{binding.demo.isEnabled=false}
 
         total_poses = linetmp.size
 
         // 데이터를 저장할 2차원 배열 
         val cutdata = Array(linetmp.size) { Array(6) {0.0} }
-        Log.d(TAG, "linetmp : $linetmp")
+        //Log.d(TAG, "linetmp : $linetmp")
 
         for (i in linetmp.indices) {
             //줄 별로 요소 저장
             val arrtmp = linetmp[i].split("\\s+".toRegex())
-            Log.d(TAG, "arrtmp : $arrtmp")
+            //Log.d(TAG, "arrtmp : $arrtmp")
             show_text.text="${arrtmp.size} sample poses"
             for (j in 0..5) {
                 cutdata[i][j] = arrtmp[j].toDouble()
@@ -1051,10 +1064,7 @@ var isrun = false
         robot_poses = cutdata
 
         for(l in robot_poses.indices){
-            for(m in 0..5){
-                val temp = robot_poses[l][m]
-                Log.d(TAG, "robot_poses[$l][$m] : $temp")
-            }
+                Log.d(TAG, "robot_poses[$l]: ${robot_poses[l].contentToString()}")
         }
 
         var k = 0
@@ -1069,6 +1079,8 @@ var isrun = false
                 if (k == cutdata.size - 1) {
                     cancel()
                     show_text.text = " Sample pose work done! "
+
+                    runOnUiThread{binding.demo.isEnabled=true}
                     Log.d(TAG, "iter- out")
                 }
                 Log.d(TAG, "Wait for next pose...")
