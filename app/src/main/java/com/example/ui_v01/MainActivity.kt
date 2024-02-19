@@ -1,6 +1,5 @@
 package com.example.ui_v01
 
-import BTNenable
 import android.R
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -16,7 +15,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ui_v01.databinding.ActivityMainBinding
-import kotlinx.coroutines.delay
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
@@ -29,6 +27,7 @@ import kotlin.String
 import kotlin.Unit
 import kotlin.byteArrayOf
 import kotlin.concurrent.fixedRateTimer
+import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 import kotlin.math.PI
 import kotlin.math.absoluteValue
@@ -47,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     // Set IP/Port
     private val newip = "192.168.0.100" // leelab3 // 192.168.0.100 : ZUB , 192.168.0.11 : msi
     private val port = 23
+    private var communicationThread: Thread? = null
 
     // communication var
     private lateinit var show_text: TextView
@@ -75,7 +75,8 @@ class MainActivity : AppCompatActivity() {
 
     private var demomode = true
 
-    var recvdata = ByteArray(32)
+    private var bufferSize = 1000
+    var recvdata = ByteArray(bufferSize)
 
     // index val
     val idx_cur_joint = 21
@@ -89,12 +90,13 @@ class MainActivity : AppCompatActivity() {
     val idx_joint_status = 33
     val idx_stop = 12
 
+    // calc param
     val interval_btw_poses : Long = 3  // seconds,  time delay during robot motion
     val interval_go_signal : Long = 1000  // milliseconds
     val sampling_time : Long = 10 // milliseconds
 
     val unit_from_ui_to_zub = 1000.0
-    val curq = DoubleArray(6)
+    var curq = DoubleArray(6)
     var des_pose = DoubleArray(6)
     var q_status = IntArray(6)
 
@@ -125,14 +127,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var outstream: DataOutputStream
     private lateinit var instream: DataInputStream
 
-    // timer
-    private lateinit var timetext: TextView
-    private lateinit var time2text: TextView
-    private var timestopflag = 0
-    private var timecount = 0
-    private var time2count = 0
-    private var testflag = false
-
     // File reader
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -147,6 +141,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Main Act
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_item)
@@ -157,10 +152,13 @@ class MainActivity : AppCompatActivity() {
         ////////status text
         show_text = binding.textstatus
 
+        val mainthrid = android.os.Process.myTid()
+        Log.d(TAG, "[Main Thread : $mainthrid]")
+
         ////////
         binding.connectbt.setOnClickListener{
 //            connectionflag = !connectionflag
-            connectt(0)
+            onToggleConnectButtonClicked()
         }
         binding.demo.setOnClickListener{
             gosamplflag = true
@@ -177,6 +175,7 @@ class MainActivity : AppCompatActivity() {
         ///////////linear stage
         lsctrlbtn(binding.lsup, true) //true up
         lsctrlbtn(binding.lsdown, false) // false down
+
         binding.packagebt.setOnClickListener {
             packageflag = true
         }
@@ -389,77 +388,117 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
-    private fun connectt(id: Int) {
+var isrun = false
+    private fun onToggleConnectButtonClicked() {
         mHandler = Handler(Looper.getMainLooper())
+        isrun = false
+        var TID : Int = 0
+        //if(connectionflag) requestDisconnection()
+//        else requestConnection()
+
         show_text.text = "연결하는중"
 
-        val checkUpdate = Thread {
+
+        if(TID != 0){
+            requestDisconnection()
+            TID = 0
+        }
+
+        communicationThread = Thread {
+            Log.d(TAG, "[ Thread ID : ${android.os.Process.myTid()}]")
+            TID = android.os.Process.myTid()
+
 //             Access server
-            if(connectionflag){
+            if(connectionflag){ //이미 연결되어 있을때
                 connectionflag = false
+                Log.d(TAG,"in thread connection check..")
+
                 show_text.text = "Diconnected..!"
+
                 runOnUiThread{btnablelist(false)}
                 runOnUiThread{binding.connectbt.isChecked=false}
+                communicationThread!!.interrupt()
+                communicationThread = null
+                TID=0
                 //socket.close()
                 return@Thread
-            }
-            else{
-                connectionflag=!connectionflag
             }
 
             try {
                 socket = Socket(newip, port)
+                resetval()
+
                 show_text.text = "서버 접속됨"
             }
             catch (e1: IOException) {
                 show_text.text = "서버 접속 못함"
-                connectionflag = false
-                //e1.printStackTrace()
-                runOnUiThread{btnablelist(false)}
-                runOnUiThread{binding.connectbt.isChecked=false}
-                return@Thread
+
+                catchoutConnection()
             }
+
             try {
                 outstream = DataOutputStream(socket.getOutputStream())
                 instream = DataInputStream(socket.getInputStream())
+
+                resetval()
+                showjoint()
                 //outstream.writeUTF("안드로이드에서 서버로 연결 요청")
+
                 show_text.text = "Connected..!"
             }
             catch (e: IOException) {
                 show_text.text = "버퍼 생성 잘못 됨"
-                connectionflag = false
-                runOnUiThread{btnablelist(false)}
-                runOnUiThread{binding.connectbt.isChecked=false}
+
+                catchoutConnection()
+
                 socket.close()
-                return@Thread
             }
             try {
                 runOnUiThread{btnablelist(true)}
-                while (true) {
+                connectionflag = true
+
+                if(isrun) {
+                    Log.d(TAG, "Is run")
+                    return@Thread
+                }
+                isrun =!isrun
+
+                while (!communicationThread!!.isInterrupted()) {
+                    Thread.sleep(50)
+
+
+
+                    Log.d(TAG, "[ Run Thread : ${android.os.Process.myTid()}]")
+                    if(TID != (android.os.Process.myTid()) ) {
+                        Log.d(TAG, "TID mismatched!!")
+                        break
+                    }
+                    if(!connectionflag) break  // *******imprt
+
                     get_joint_value() //add timer
-                    //btnable()
                     //////////////////////////////
 
-                    if (stopbtnflag == true){
+                    if (stopbtnflag){
                         setvalue(idx_stop,1)
 //                        show_text.text="--STOP--"
-                        while(stopbtnflag==true){
+                        while(stopbtnflag){
                             //Log.d(TAG, "Stop button activated!!")
                         }
                     }
 
                     //////////////////////////////
-                    if (upjointflag == true){
+                    if (upjointflag){
                         Log.d(TAG, "jointflag true / prss id : $pressedid")
                         up_joint(pressedid)
                         //upjointflag = false
                     }
-                    if (downjointflag == true){
+                    if (downjointflag){
                         Log.d(TAG, "jointflag true / prss id : $pressedid")
                         down_joint(pressedid)
                         //downjointflag = false
                     }
-                    if (gosamplflag == true){
+
+                    if (gosamplflag){
                         Log.d(TAG, "go samplflag / flag : $gosamplflag")
                         //show_text.text = "$rawfiledata"
                         load_file(rawfiledata)
@@ -474,7 +513,7 @@ class MainActivity : AppCompatActivity() {
 //                            up_pose(pressedid)
 //                            upposeflag = false
 //                        }
-//                        if (downposeflag == true){
+//                        if (downposeflag){
 //                            Log.d(TAG, "poseflag true / prss id : $pressedid")
 //                            //down_pose(pressedid)
 //                            downposeflag = false
@@ -486,25 +525,26 @@ class MainActivity : AppCompatActivity() {
 //                        downposeflag = false
 //                    }
 //
-                    if (lsupflag == true){
+                    if (lsupflag){
                         up_stage()
                     }
 
-                    if (lsdwnflag == true){
+                    if (lsdwnflag){
                         down_stage()
                     }
 
-                    if (lsstpflag == true){
+                    if (lsstpflag){
                         stop_stage()
                     }
 
-                    if (homeflag == true){
+                    if (homeflag){
                         Log.d(TAG, "go home / flag : $homeflag")
                         go_home()
                         homeflag = false
                         show_text.text="Home pos"
                     }
-                    if (packageflag == true){
+
+                    if (packageflag){
                         Log.d(TAG, "go package / flag : $packageflag")
                         go_package()
                         packageflag = false
@@ -513,32 +553,66 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             catch (e: NullPointerException ) {
-                connectionflag = false
                 show_text.text="connection error!"
-                runOnUiThread{btnablelist(false)}
-                runOnUiThread{binding.connectbt.isChecked=false}
+
+                catchoutConnection()
+
                 socket.close()
-                return@Thread
             }
             catch (e: IOException){
-                connectionflag = false
-                show_text.text="Diconnected..!"
-                runOnUiThread{btnablelist(false)}
-                runOnUiThread{binding.connectbt.isChecked=false}
+                show_text.text="connection error!"
+
+                catchoutConnection()
+
                 socket.close()
-                return@Thread
             }
         }
-        checkUpdate.start()
+
+        communicationThread!!.start()
+    }
+
+    private fun requestDisconnection()
+    {
+
+        Log.d(TAG, "requestDisconnection....")
+        show_text.text = "Diconnected..!"
+
+
+        runOnUiThread{btnablelist(false)}
+        runOnUiThread{binding.connectbt.isChecked=false}
+
+        connectionflag = false
+        communicationThread!!.interrupt()
+        communicationThread = null
+        return
+
+    }
+
+    private fun requestConnection()
+    {
+        if(communicationThread!!.isAlive) return
+    }
+
+    private fun catchoutConnection(){
+
+        Log.d(TAG, "catchoutConnection....")
+        resetval()
+        showjoint()
+
+        runOnUiThread{btnablelist(false)}
+        runOnUiThread{binding.connectbt.isChecked=false}
+        connectionflag = false
     }
 
     @SuppressLint("SetTextI18n")
     private fun get_joint_value(){
         //Log.d(TAG, "get joint value func in.")
+
         for(i in 0..5) {
             getvalue(idx_cur_joint+i)//idx_cur_joint + i
-            //showrecvdata()
 
+            //Log.d(TAG, "curq val ${curq.contentToString()}")
+            //Log.d(TAG, "recvdata ${recvdata.contentToString()}")
             val rcv8 = recvdata[8]
             val rcv9 = recvdata[9]
             val rcv10 = recvdata[10]
@@ -554,19 +628,14 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        val curq1 = curq[0]
-        val curq2 = curq[1]
-        val curq3 = curq[2]
-        val curq4 = curq[3]
-        val curq5 = curq[4]
-        val curq6 = curq[5]
 
-        binding.textbaseval.text = "$curq1"
-        binding.textsholderval.text = "$curq2"
-        binding.textdepthval.text = "$curq3"
-        binding.textwrist1val.text = "$curq4"
-        binding.textwrist2val.text = "$curq5"
-        binding.textwrist3val.text = "$curq6"
+        showjoint()
+//        binding.textbaseval.text = "$curq1"
+//        binding.textsholderval.text = "$curq2"
+//        binding.textdepthval.text = "$curq3"
+//        binding.textwrist1val.text = "$curq4"
+//        binding.textwrist2val.text = "$curq5"
+//        binding.textwrist3val.text = "$curq6"
         //Log.d(TAG, "read joint value done")
 
         val q = curq.plus(0.0)// + 0.0
@@ -574,6 +643,23 @@ class MainActivity : AppCompatActivity() {
         T0E = fktms(q)
         //Log.d(TAG, "fktms(q) done")
         calcT0E(T0E)
+    }
+
+    private fun resetval(){
+        //Log.d(TAG, "resetval joint ")
+        curq = doubleArrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        recvdata =  ByteArray(bufferSize){0}
+        //Log.d(TAG, "rst curq ${curq.contentToString()}")
+        //Log.d(TAG, "recvdata ${recvdata.contentToString()}")
+        showjoint()
+    }
+    private fun showjoint(){
+        binding.textbaseval.text = "${curq[0]}"
+        binding.textsholderval.text = "${curq[1]}"
+        binding.textdepthval.text = "${curq[2]}"
+        binding.textwrist1val.text = "${curq[3]}"
+        binding.textwrist2val.text = "${curq[4]}"
+        binding.textwrist3val.text = "${curq[5]}"
     }
 
     //kine
@@ -910,17 +996,30 @@ class MainActivity : AppCompatActivity() {
             0x22,(index and 0xFF).toByte(), ((index shr 8) and 0xFF).toByte(), subindex.toByte(),
             (value and 0xFF).toByte(), ((value shr 8) and 0xFF).toByte(),((value shr 16) and 0xFF).toByte(), ((value shr 24) and 0xFF).toByte(), 0x03)
         outstream.write(msg)
-        instream.read(recvdata,0,13)
+        instream.read(recvdata,0,bufferSize)
         sendflag = false
     }
     private fun getvalue(subindex : Int) : Unit{
+        // outstream flush
+        outstream.flush()
+        // instream flush
+        var numBytes = instream.available()
+        if (numBytes > 0)
+        {
+             instream.read(recvdata, 0, numBytes)
+        }
+
+        //Log.d(TAG, "getvalue in/ sbidx : $subindex")
         val index = 0x2201
         val msg1 = byteArrayOf(0x05.toByte(), 0x0B.toByte(), 0x00, 23,
             0x40,(index and 0xFF).toByte(), ((index shr 8) and 0xFF).toByte(), subindex.toByte(),
             0x00, 0x00,0x00, 0x00, 0x03)
         outstream.write(msg1)
-        instream.read(recvdata,0,13)
-        recvflag = false
+        while (instream.available() >= 13);
+        instream.read(recvdata,0,bufferSize)
+
+//        Log.d(TAG, "[${android.os.Process.myTid()}]recvdata ${recvdata.contentToString()} // getvalue end")
+        //recvflag = false
     }
 
 
@@ -1038,56 +1137,6 @@ class MainActivity : AppCompatActivity() {
         return sb.toString()
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun showrecvdata(){
-        val rawdt = byteArrayToHex(recvdata)
-
-        show_text.text=rawdt
-    }
-
-    fun btnable(){
-        val btnid: List<String> = listOf<String>(
-            "lsup",
-            "lsdown",
-            "packagebt",
-            "connectbt",
-            "demo",
-            "file",
-            "m1","m2","m3","m4","m5","m6",
-            "p1","p2","p3","p4","p5","p6",
-            "speedcontorl",
-            "stopbtn",
-            "homepositionbtn",
-            "gobtn",
-            "xm","xp",
-            "ym","yp",
-            "zm","zp",
-            "rxm","rxp",
-            "rym","ryp",
-            "rzm","rzp"
-        )
-        show_text.text="btnable in"
-
-        for (buttonId in btnid) {
-            show_text.text = "btnable in 1"
-            try {
-                val field = binding::class.java.getDeclaredField(buttonId)
-                show_text.text = "btnable in 2"
-                field.isAccessible = true
-                show_text.text = "btnable in 3"
-                val button = field.get(binding) as Button
-                show_text.text = "btnable in 4"
-                button.isEnabled = true
-                show_text.text = "btnable in 5"
-            } catch (e: NoSuchFieldException) {
-                // 만약 NoSuchFieldException이 발생하면 로그에 출력
-                Log.e("btnable", "Field not found for buttonId: $buttonId", e)
-            } catch (e: IllegalAccessException) {
-                // 만약 IllegalAccessException이 발생하면 로그에 출력
-                Log.e("btnable", "Field cannot be accessed for buttonId: $buttonId", e)
-            }
-        }
-    }
 
     private fun btnablelist(state : Boolean){
         //show_text.text = "btnable list in"
