@@ -133,6 +133,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1){
             if (resultCode == Activity.RESULT_OK) {
+                rawfiledata = null
                 val samplepose = data?.getStringExtra("samplepose")
                 rawfiledata = samplepose
 //                Toast.makeText(applicationContext, "sample pose : \n $samplepose", Toast.LENGTH_LONG).show()
@@ -160,8 +161,14 @@ class MainActivity : AppCompatActivity() {
 //            connectionflag = !connectionflag
             onToggleConnectButtonClicked()
         }
+
+
         binding.demo.setOnClickListener{
-            gosamplflag = true
+            if(rawfiledata==null) {
+                Toast.makeText(applicationContext, "No sample pose..", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else gosamplflag = true
             //load_file(rawfiledata)
         }
 
@@ -209,10 +216,11 @@ class MainActivity : AppCompatActivity() {
             if(isToggled) {
                 show_text.text = "--Demo Reset & Home Pos--"
                 rawfiledata = null
+                binding.demo.isEnabled=true
                 binding.demorstbtn.isEnabled = false
-                demorst = true
-
                 binding.stopbtn.isChecked=false
+                isToggled = !isToggled
+                demorst = true
                 stopbtnflag = false
 
                 homeflag = true
@@ -222,6 +230,7 @@ class MainActivity : AppCompatActivity() {
         binding.homepositionbtn.setOnClickListener{
             homeflag = true
         }
+
 
         //seek bar button (joint control +,- button)
         sbctrlbtn(binding.m1,true, 0)
@@ -388,7 +397,7 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
-var isrun = false
+    var isrun = false
     private fun onToggleConnectButtonClicked() {
         mHandler = Handler(Looper.getMainLooper())
         isrun = false
@@ -400,6 +409,7 @@ var isrun = false
 
 
         if(TID != 0){
+            Log.d(TAG, "TID missmatch")
             requestDisconnection()
             TID = 0
         }
@@ -456,23 +466,25 @@ var isrun = false
             try {
                 runOnUiThread{btnablelist(true)}
                 connectionflag = true
-
+                Log.d(TAG, "button able..")
                 if(isrun) {
                     Log.d(TAG, "Is run")
-                    return@Thread
+                    communicationThread!!.interrupt()
                 }
                 isrun =!isrun
 
+                Log.d(TAG, "thread loop start..")
                 while (!communicationThread!!.isInterrupted()) {
-                    Thread.sleep(50)
 
-
-
+                    Thread.sleep(100)
                     Log.d(TAG, "[ Run Thread : ${android.os.Process.myTid()}]")
+
+                    //////////
                     if(TID != (android.os.Process.myTid()) ) {
                         Log.d(TAG, "TID mismatched!!")
                         break
                     }
+
                     if(!connectionflag) break  // *******imprt
 
                     get_joint_value() //add timer
@@ -482,8 +494,10 @@ var isrun = false
                         setvalue(idx_stop,1)
 //                        show_text.text="--STOP--"
                         while(stopbtnflag){
-                            //Log.d(TAG, "Stop button activated!!")
+                            Thread.sleep(300)
+                            Log.d(TAG, "Stop button activated!! $stopbtnflag")
                         }
+                        Log.d(TAG, "ready!! stpflg : $stopbtnflag")
                     }
 
                     //////////////////////////////
@@ -566,9 +580,13 @@ var isrun = false
 
                 socket.close()
             }
+            catch (e: InterruptedException){
+                Log.d(TAG, " interrupt exc")
+            }
         }
 
         communicationThread!!.start()
+
     }
 
     private fun requestDisconnection()
@@ -628,14 +646,7 @@ var isrun = false
 
         }
 
-
         showjoint()
-//        binding.textbaseval.text = "$curq1"
-//        binding.textsholderval.text = "$curq2"
-//        binding.textdepthval.text = "$curq3"
-//        binding.textwrist1val.text = "$curq4"
-//        binding.textwrist2val.text = "$curq5"
-//        binding.textwrist3val.text = "$curq6"
         //Log.d(TAG, "read joint value done")
 
         val q = curq.plus(0.0)// + 0.0
@@ -1015,7 +1026,7 @@ var isrun = false
             0x40,(index and 0xFF).toByte(), ((index shr 8) and 0xFF).toByte(), subindex.toByte(),
             0x00, 0x00,0x00, 0x00, 0x03)
         outstream.write(msg1)
-        while (instream.available() >= 13);
+        //while (instream.available() >= 13);
         instream.read(recvdata,0,bufferSize)
 
 //        Log.d(TAG, "[${android.os.Process.myTid()}]recvdata ${recvdata.contentToString()} // getvalue end")
@@ -1032,17 +1043,18 @@ var isrun = false
         }
         // 줄단위 저장
         val linetmp = rawfiledata.toString().split("\n".toRegex())
+        runOnUiThread{binding.demo.isEnabled=false}
 
         total_poses = linetmp.size
 
         // 데이터를 저장할 2차원 배열 
         val cutdata = Array(linetmp.size) { Array(6) {0.0} }
-        Log.d(TAG, "linetmp : $linetmp")
+        //Log.d(TAG, "linetmp : $linetmp")
 
         for (i in linetmp.indices) {
             //줄 별로 요소 저장
             val arrtmp = linetmp[i].split("\\s+".toRegex())
-            Log.d(TAG, "arrtmp : $arrtmp")
+            //Log.d(TAG, "arrtmp : $arrtmp")
             show_text.text="${arrtmp.size} sample poses"
             for (j in 0..5) {
                 cutdata[i][j] = arrtmp[j].toDouble()
@@ -1052,24 +1064,23 @@ var isrun = false
         robot_poses = cutdata
 
         for(l in robot_poses.indices){
-            for(m in 0..5){
-                val temp = robot_poses[l][m]
-                Log.d(TAG, "robot_poses[$l][$m] : $temp")
-            }
+                Log.d(TAG, "robot_poses[$l]: ${robot_poses[l].contentToString()}")
         }
 
         var k = 0
         timer(period = 3000, initialDelay = 100){
-            set_q_value(cutdata[k].toDoubleArray())
             if(demorst || stopbtnflag){
                 demorst = !demorst
                 cancel()
             }
             else {
+                set_q_value(cutdata[k].toDoubleArray())
                 Log.d(TAG, "k : $k")
                 if (k == cutdata.size - 1) {
                     cancel()
                     show_text.text = " Sample pose work done! "
+
+                    runOnUiThread{binding.demo.isEnabled=true}
                     Log.d(TAG, "iter- out")
                 }
                 Log.d(TAG, "Wait for next pose...")
