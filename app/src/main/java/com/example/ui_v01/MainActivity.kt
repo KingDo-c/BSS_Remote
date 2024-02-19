@@ -133,6 +133,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1){
             if (resultCode == Activity.RESULT_OK) {
+                rawfiledata = null
                 val samplepose = data?.getStringExtra("samplepose")
                 rawfiledata = samplepose
 //                Toast.makeText(applicationContext, "sample pose : \n $samplepose", Toast.LENGTH_LONG).show()
@@ -160,8 +161,14 @@ class MainActivity : AppCompatActivity() {
 //            connectionflag = !connectionflag
             onToggleConnectButtonClicked()
         }
+
+
         binding.demo.setOnClickListener{
-            gosamplflag = true
+            if(rawfiledata==null) {
+                Toast.makeText(applicationContext, "No sample pose..", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else gosamplflag = true
             //load_file(rawfiledata)
         }
 
@@ -210,9 +217,9 @@ class MainActivity : AppCompatActivity() {
                 show_text.text = "--Demo Reset & Home Pos--"
                 rawfiledata = null
                 binding.demorstbtn.isEnabled = false
-                demorst = true
-
                 binding.stopbtn.isChecked=false
+                isToggled = !isToggled
+                demorst = true
                 stopbtnflag = false
 
                 homeflag = true
@@ -459,15 +466,12 @@ var isrun = false
 
                 if(isrun) {
                     Log.d(TAG, "Is run")
-                    return@Thread
+                    communicationThread!!.interrupt()
                 }
                 isrun =!isrun
 
                 while (!communicationThread!!.isInterrupted()) {
-                    Thread.sleep(50)
-
-
-
+                    Thread.sleep(100)
                     Log.d(TAG, "[ Run Thread : ${android.os.Process.myTid()}]")
                     if(TID != (android.os.Process.myTid()) ) {
                         Log.d(TAG, "TID mismatched!!")
@@ -482,8 +486,10 @@ var isrun = false
                         setvalue(idx_stop,1)
 //                        show_text.text="--STOP--"
                         while(stopbtnflag){
-                            //Log.d(TAG, "Stop button activated!!")
+                            Thread.sleep(300)
+                            Log.d(TAG, "Stop button activated!! $stopbtnflag")
                         }
+                        Log.d(TAG, "ready!! stpflg : $stopbtnflag")
                     }
 
                     //////////////////////////////
@@ -628,14 +634,7 @@ var isrun = false
 
         }
 
-
         showjoint()
-//        binding.textbaseval.text = "$curq1"
-//        binding.textsholderval.text = "$curq2"
-//        binding.textdepthval.text = "$curq3"
-//        binding.textwrist1val.text = "$curq4"
-//        binding.textwrist2val.text = "$curq5"
-//        binding.textwrist3val.text = "$curq6"
         //Log.d(TAG, "read joint value done")
 
         val q = curq.plus(0.0)// + 0.0
@@ -1060,12 +1059,12 @@ var isrun = false
 
         var k = 0
         timer(period = 3000, initialDelay = 100){
-            set_q_value(cutdata[k].toDoubleArray())
             if(demorst || stopbtnflag){
                 demorst = !demorst
                 cancel()
             }
             else {
+                set_q_value(cutdata[k].toDoubleArray())
                 Log.d(TAG, "k : $k")
                 if (k == cutdata.size - 1) {
                     cancel()
