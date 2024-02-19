@@ -388,9 +388,10 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
     }
 
+var isrun = false
     private fun onToggleConnectButtonClicked() {
         mHandler = Handler(Looper.getMainLooper())
-
+        isrun = false
         var TID : Int = 0
         //if(connectionflag) requestDisconnection()
 //        else requestConnection()
@@ -404,8 +405,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         communicationThread = Thread {
-            Log.d(TAG, "[ Thread num : ${android.os.Process.myTid()}]")
+            Log.d(TAG, "[ Thread ID : ${android.os.Process.myTid()}]")
             TID = android.os.Process.myTid()
+
 //             Access server
             if(connectionflag){ //이미 연결되어 있을때
                 connectionflag = false
@@ -455,8 +457,17 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread{btnablelist(true)}
                 connectionflag = true
 
+                if(isrun) {
+                    Log.d(TAG, "Is run")
+                    return@Thread
+                }
+                isrun =!isrun
+
                 while (!communicationThread!!.isInterrupted()) {
                     Thread.sleep(50)
+
+
+
                     Log.d(TAG, "[ Run Thread : ${android.os.Process.myTid()}]")
                     if(TID != (android.os.Process.myTid()) ) {
                         Log.d(TAG, "TID mismatched!!")
@@ -562,6 +573,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestDisconnection()
     {
+
         Log.d(TAG, "requestDisconnection....")
         show_text.text = "Diconnected..!"
 
